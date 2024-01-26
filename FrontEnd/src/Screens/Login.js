@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {TextInput, Button, Text} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, LINEARCOLOR} from '../constants/theme';
+import {COLORS, IP, LINEARCOLOR} from '../constants/theme';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const Login = ({navigation}) => {
@@ -71,7 +71,7 @@ const Login = ({navigation}) => {
         };
 
         const res = await axios.post(
-          'http://172.26.3.23:8000/users/login',
+          `http://${IP}:8000/users/login`,
           loginData,
         );
 
@@ -80,8 +80,9 @@ const Login = ({navigation}) => {
         if (res.data.status === 'ok') {
           Alert.alert('Login Successful');
           AsyncStorage.setItem('token', res.data.token);
-          navigation.navigate('HomeScreen');
           console.log(res.data);
+          setFormData({email: null, password: null});
+          navigation.navigate('HomeScreen');
         } else {
           // Handle login error
           Alert.alert('Login Failed', res.data.message);

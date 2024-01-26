@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const VerificationToken = require("../modals/VerificationTokenSchema");
 const { createRandomBytes } = require("../helper/helper");
 const { generateOTP, mailTransport } = require("../helper/mail");
+const sharp = require("sharp");
 
 const signup = async (req, res) => {
   try {

@@ -6,7 +6,7 @@ import OnBoardingUI from './src/Screens/OnBoardingUI';
 import {NavigationContainer} from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import SplashScreen from 'react-native-splash-screen';
-import {LINEARCOLOR} from './src/constants/theme';
+import {IP, LINEARCOLOR} from './src/constants/theme';
 import {
   CountryData,
   getStatesByCountryIsoCode,
@@ -17,7 +17,7 @@ export default function App() {
 
   const fetchApi = async () => {
     try {
-      const response = await axios.get('http://172.26.3.23:8000/users');
+      const response = await axios.get(`http://${IP}:8000/users`);
       console.log(response.data);
     } catch (error) {
       console.log(error);

@@ -1,65 +1,58 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
-import {Card, Title, Paragraph} from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+// HomeScreen.js
+import React, {useState} from 'react';
+import {View, TextInput, StyleSheet, TouchableOpacity} from 'react-native';
+import {Searchbar} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {COLORS} from '../constants/theme';
 
 const HomeScreen = () => {
-  const [userData, setUserData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  async function getData() {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.post(
-        'http://172.26.3.23:8000/users/getUserData',
-        {token},
-      );
-      setUserData(response.data.data);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  }
+  const handleSearch = query => setSearchQuery(query);
 
-  useEffect(() => {
-    getData();
-  }, []);
+  const handleFilterPress = () => {
+    // Implement your filter logic here
+    console.log('Filter icon pressed');
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>Welcome Home</Text>
-      {userData && (
-        <Card style={styles.card}>
-          <Card.Content>
-            <Title>{userData.fullName}</Title>
-            <Paragraph>Email: {userData.email}</Paragraph>
-            <Paragraph>Phone Number: {userData.phone}</Paragraph>
-            <Paragraph>Country: {userData.country}</Paragraph>
-            <Paragraph>State: {userData.province}</Paragraph>
-            <Paragraph>City: {userData.city}</Paragraph>
-            {/* Add more fields as needed */}
-          </Card.Content>
-        </Card>
-      )}
+      <Searchbar
+        placeholder="Search"
+        onChangeText={handleSearch}
+        value={searchQuery}
+        style={styles.searchBar}
+      />
+
+      <TouchableOpacity
+        onPress={handleFilterPress}
+        style={styles.filterIconContainer}>
+        <Icon name={'filter-sharp'} size={30} color={COLORS.black} />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    marginTop: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
+    padding: 8,
   },
-  welcomeText: {
-    fontSize: 20,
-    fontFamily: 'Poppins - BoldItalic',
-    marginBottom: 16,
+  searchBar: {
+    width: '83%',
   },
-  card: {
-    borderRadius: 10,
-    elevation: 4,
-    marginVertical: 16,
+  filterIconContainer: {
+    width: '15%', // Adjust as needed
+    justifyContent: 'center', // Vertically center the icon
+    alignItems: 'center', // Horizontally center the icon
+    overflow: 'hidden',
+    borderRadius: 14,
+    padding: 12,
+    borderColor: COLORS.blue,
+    backgroundColor: COLORS.lightGrey,
   },
 });
 

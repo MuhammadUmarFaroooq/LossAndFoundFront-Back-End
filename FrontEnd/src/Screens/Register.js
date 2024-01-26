@@ -16,11 +16,13 @@ import {
 } from 'react-native-paper';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import RNPickerSelect from 'react-native-picker-select';
-import {COLORS} from '../constants/theme';
+import {COLORS, IP} from '../constants/theme';
 import {Country, State, City} from 'country-state-city';
 import axios from 'axios';
 import SuperscriptText from '../Components/SuperscriptText ';
 import CountryPicker from 'react-native-country-picker-modal';
+
+const MAX_IMAGE_SIZE = 1024 * 1024 * 5;
 
 const SignupScreen = ({navigation}) => {
   const [firstName, setFirstName] = useState('');
@@ -40,35 +42,12 @@ const SignupScreen = ({navigation}) => {
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
 
-  const handleImageUpload = useCallback(() => {
+  const handleLaunchCamera = useCallback(async () => {
     const options = {
       mediaType: 'photo',
-      quality: 0.5,
-      saveToPhotos: true,
-    };
-
-    launchImageLibrary(options, response => {
-      if (response.didCancel) {
-        console.log('Image selection canceled');
-      } else if (response.errorCode) {
-        console.log(
-          'ImagePicker Error: ',
-          response.errorCode,
-          response.errorMessage,
-        );
-      } else {
-        const source = {uri: response.assets[0].uri};
-        setAvatarSource(source);
-      }
-    });
-
-    hideModal(); // Close the modal after image selection
-  }, []);
-  console.log(selectedCountry);
-  const handleImageUploadCamera = useCallback(() => {
-    const options = {
-      mediaType: 'photo',
-      quality: 0.5,
+      quality: 0.8,
+      maxHeight: 500,
+      maxWidth: 500,
       saveToPhotos: true,
     };
 
@@ -82,12 +61,45 @@ const SignupScreen = ({navigation}) => {
           response.errorMessage,
         );
       } else {
-        const source = {uri: response.assets[0].uri};
-        setAvatarSource(source);
+        if (response.assets[0].fileSize > MAX_IMAGE_SIZE) {
+          Alert.alert('Image size exceeds limit');
+          return;
+        }
+
+        setAvatarSource({uri: response.assets[0].uri});
+        hideModal(); // Close the modal after image selection
       }
     });
+  }, []);
 
-    hideModal(); // Close the modal after image selection
+  const handleImageUpload = useCallback(async () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 0.8,
+      maxHeight: 500,
+      maxWidth: 500,
+      saveToPhotos: true,
+    };
+
+    launchImageLibrary(options, response => {
+      if (response.didCancel) {
+        console.log('Image selection canceled');
+      } else if (response.errorCode) {
+        console.log(
+          'ImagePicker Error: ',
+          response.errorCode,
+          response.errorMessage,
+        );
+      } else {
+        if (response.assets[0].fileSize > MAX_IMAGE_SIZE) {
+          Alert.alert('Image size exceeds limit');
+          return;
+        }
+
+        setAvatarSource({uri: response.assets[0].uri});
+        hideModal(); // Close the modal after image selection
+      }
+    });
   }, []);
 
   const [errors, setErrors] = useState({
@@ -144,7 +156,7 @@ const SignupScreen = ({navigation}) => {
         country: selectedCountry.name,
         province: selectedState.name,
         city: selectedCity.name,
-        avatarSource,
+        avatar: avatarSource ? avatarSource.uri : null,
       };
 
       try {
@@ -159,7 +171,7 @@ const SignupScreen = ({navigation}) => {
           selectedCity
         ) {
           const res = await axios
-            .post('http://172.26.3.23:8000/users/signup', userData)
+            .post(`http://${IP}:8000/users/signup`, userData)
             .then(res => {
               console.log(res.data);
               if (res.data.status == 'ok') {
@@ -175,7 +187,6 @@ const SignupScreen = ({navigation}) => {
       } catch (err) {
         console.log(err.response.data);
         Alert.alert(err.response.data.message);
-        setBackendErrors(err.response.data.errors);
       }
     }
   };
@@ -207,7 +218,7 @@ const SignupScreen = ({navigation}) => {
               <Text>Gallery</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={handleImageUploadCamera}
+              onPress={handleLaunchCamera}
               style={styles.modalOption}>
               <Text>On camera</Text>
             </TouchableOpacity>

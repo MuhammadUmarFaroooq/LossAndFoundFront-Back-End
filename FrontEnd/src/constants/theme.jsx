@@ -11,7 +11,7 @@ export const COLORS = {
   blue: '#087BB6',
   yellow: '#F4D03F',
   statusColor: '#333333',
-  BlockColor:'#adaba0'
+  BlockColor: '#adaba0',
 };
 
 export const SIZES = {
@@ -26,4 +26,9 @@ export const SIZES = {
   height,
 };
 
-export const LINEARCOLOR=['hsla(270, 4%, 100%, 1)', 'hsla(270, 39%, 100%, 1)']
+export const IP = '192.168.100.7';
+
+export const LINEARCOLOR = [
+  'hsla(270, 4%, 100%, 1)',
+  'hsla(270, 39%, 100%, 1)',
+];

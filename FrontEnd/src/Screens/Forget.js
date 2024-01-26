@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {TextInput, Button, Text} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, LINEARCOLOR} from '../constants/theme';
+import {COLORS, IP, LINEARCOLOR} from '../constants/theme';
 import axios from 'axios';
 
 const ForgotPasswordScreen = ({navigation}) => {
@@ -31,8 +31,9 @@ const ForgotPasswordScreen = ({navigation}) => {
       const loginData = {
         email: email,
       };
+
       const res = await axios.post(
-        'http://172.26.3.23:8000/users/forgetpassword',
+        `http://${IP}:8000/users/forgetpassword`,
         loginData,
       );
 
