@@ -11,40 +11,13 @@ import {COLORS} from '../constants/theme';
 import {View, Image, Text, TouchableOpacity} from 'react-native';
 
 import BottomUpNavigation from './BottomUpNavigation';
+import HomeScreen from '../Screens/HomeScreen';
+import PostDetail from '../Screens/PostDetail';
+import Listings from '../Screens/Listings';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = props => {
-  const renderHeader = () => (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginHorizontal: 50,
-        marginTop: 12, // Adjust margin as needed
-      }}>
-      <Image
-        source={require('../assets/appicons/logo.png')} // Replace with the path to your logo
-        style={{width: 200, height: 20, marginRight: 60, marginLeft: 20}}
-      />
-
-      {/* Bell Icon */}
-      <TouchableOpacity
-        onPress={() => {
-          // Handle bell icon press
-        }}
-        style={{backgroundColor: COLORS.white, padding: 6}}>
-        {/* Pushes bell icon to the right */}
-        <Image
-          source={require('../assets/bell.png')} // Replace with the path to your bell icon
-          style={{
-            width: 30,
-            height: 30,
-          }}
-        />
-      </TouchableOpacity>
-    </View>
-  );
   return (
     <Stack.Navigator initialRouteName="AfterTour">
       <Stack.Screen name="AfterTour" component={AfterToursScreen} />
@@ -52,15 +25,17 @@ const AppNavigator = props => {
       <Stack.Screen name="Forget" component={ForgotPasswordScreen} />
       <Stack.Screen name="OPTScreen" component={OTPScreen} />
       <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <Stack.Screen name="Tabs" component={BottomUpNavigation} />
       <Stack.Screen
-        name="HomeScreen"
-        component={BottomUpNavigation}
+        name="Post Details"
+        component={PostDetail}
         options={{
-          headerTitle: () => renderHeader(),
-          headerStyle: {
-            backgroundColor: COLORS.white,
+          headerTitleStyle: {
+            color: '#000000',
+            fontSize: 20,
+            fontFamily: 'Rubik-Bold',
           },
-          headerLeft: null, // Hide back button
+          headerTitleAlign: 'center',
         }}
       />
 
@@ -93,6 +68,8 @@ const AppNavigator = props => {
           },
         }}
       />
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Listings" component={Listings} />
     </Stack.Navigator>
   );
 };

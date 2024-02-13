@@ -1,82 +1,186 @@
-import * as React from 'react';
-import {BottomNavigation, Text} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Import icons library
+import React from 'react';
+import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+
+import {CommonActions} from '@react-navigation/native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {Text, BottomNavigation} from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon2 from 'react-native-vector-icons/AntDesign';
 import HomeScreen from '../Screens/HomeScreen';
+import PostCreation from '../Screens/PostCreation';
+import {COLORS} from '../constants/theme';
 import Profile from '../Screens/Profile';
+import {Categories} from '../constants/AppDetail';
 
-const SearchRoute = () => (
-  <Text style={{color: 'black', marginTop: 50}}>Search Content</Text>
-);
+const Tab = createBottomTabNavigator();
+const MusicRoute = () => <Text>Music</Text>;
 
-const PlusRoute = () => (
-  <Text style={{color: 'black', marginTop: 50}}>Plus Content</Text>
-);
+const AlbumsRoute = () => <Text>Albums</Text>;
 
-const ChatRoute = () => (
-  <Text style={{color: 'black', marginTop: 50}}>Chat Content</Text>
-);
+const RecentsRoute = () => <Text>Recents</Text>;
 
-const ProfileRoute = () => (
-  <Text style={{color: 'black', marginTop: 50}}>Profile Content</Text>
-);
-
-const BottomUpNavigation = () => {
-  const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    {
-      key: 'home',
-      //   title: 'Home',
-      focusedIcon: 'home',
-      unfocusedIcon: 'home',
-    },
-    {
-      key: 'search',
-      //   title: 'Search',
-      focusedIcon: 'magnify',
-      unfocusedIcon: 'magnify',
-    },
-    {
-      key: 'plus',
-      //   title: 'Add',
-      focusedIcon: 'plus',
-      unfocusedIcon: 'plus',
-    },
-    {
-      key: 'chat',
-      //   title: 'Chat',
-      focusedIcon: 'message',
-      unfocusedIcon: 'message',
-    },
-    {
-      key: 'profile',
-      //   title: 'Profile',
-      focusedIcon: 'account',
-    },
-  ]);
-
-  const renderScene = BottomNavigation.SceneMap({
-    home: HomeScreen,
-    search: SearchRoute,
-    plus: PlusRoute,
-    chat: ChatRoute,
-    profile: Profile,
-  });
-
+const NotificationsRoute = () => <Text>Notifications</Text>;
+export default function BottomUpNavigation({navigation}) {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, [navigation]);
   return (
-    <BottomNavigation
-      navigationState={{index, routes}}
-      onIndexChange={setIndex}
-      renderScene={renderScene}
-      barStyle={{
-        backgroundColor: 'white',
-        marginTop: 5,
-        padding: 5,
-        fontSize: 32,
-      }}
-      activeColor="black"
-      inactiveColor="gray"
-    />
-  );
-};
+    <Tab.Navigator
+      tabBar={({navigation, state, descriptors, insets}) => (
+        <BottomNavigation.Bar
+          style={{backgroundColor: COLORS.white, paddingBottom: 12, height: 60}}
+          activeColor={COLORS.blue}
+          inactiveColor={COLORS.black}
+          navigationState={state}
+          safeAreaInsets={insets}
+          onTabPress={({route, preventDefault}) => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
 
-export default BottomUpNavigation;
+            if (event.defaultPrevented) {
+              preventDefault();
+            } else {
+              navigation.dispatch({
+                ...CommonActions.navigate(route.name, route.params),
+                target: state.key,
+              });
+            }
+          }}
+          renderIcon={({route, focused, color}) => {
+            const {options} = descriptors[route.key];
+            if (options.tabBarIcon) {
+              return options.tabBarIcon({focused, color, size: 25});
+            }
+
+            return null;
+          }}
+          getLabelText={({route}) => {
+            const {options} = descriptors[route.key];
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                ? options.title
+                : route.title;
+
+            return label;
+          }}
+        />
+      )}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerTitle: () => (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginHorizontal: 50,
+                marginTop: 12,
+                marginBottom: 12, // Adjust margin as needed
+              }}>
+              <Image
+                source={require('../assets/appicons/logo.png')} // Replace with the path to your logo
+                style={{
+                  width: 200,
+                  height: 20,
+                  marginRight: 60,
+                  marginLeft: 20,
+                }}
+              />
+
+              {/* Bell Icon */}
+              <TouchableOpacity
+                onPress={() => {
+                  // Handle bell icon press
+                }}
+                style={{backgroundColor: COLORS.white, padding: 6}}>
+                {/* Pushes bell icon to the right */}
+                <Image
+                  source={require('../assets/bell.png')} // Replace with the path to your bell icon
+                  style={{
+                    width: 30,
+                    height: 30,
+                  }}
+                />
+              </TouchableOpacity>
+            </View>
+          ),
+
+          tabBarIcon: ({color, size}) => (
+            <Icon name="home" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="heart"
+        component={MusicRoute}
+        options={{
+          tabBarIcon: ({color, size}) => {
+            return <Icon2 name="hearto" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="PostCreation"
+        component={PostCreation}
+        initialParams={{Categories: Categories}}
+        options={{
+          headerTitle: 'Create Post',
+          headerTitleStyle: {
+            color: '#000000',
+            fontSize: 20,
+            fontFamily: 'Rubik-Bold',
+          },
+          headerTitleAlign: 'center',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.dispatch(CommonActions.goBack());
+              }}
+              style={{marginLeft: 16}}>
+              <Icon2 name="arrowleft" size={25} color="#000000" />
+            </TouchableOpacity>
+          ),
+          tabBarIcon: ({color, size}) => {
+            return <Icon2 name="plussquareo" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="chat"
+        component={AlbumsRoute}
+        options={{
+          tabBarIcon: ({color, size}) => {
+            return <Icon2 name="message1" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          tabBarIcon: ({color, size}) => {
+            return (
+              <Icon name="account-circle-outline" size={size} color={color} />
+            );
+          },
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Image, StyleSheet, LogBox} from 'react-native';
+import {View, Text, Image, StyleSheet} from 'react-native';
 import {Card, Title, Paragraph} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {IP} from '../constants/theme';
-import {TextEncoder, TextDecoder} from 'text-encoding';
+import {fromByteArray} from 'base64-js'; // Import from base64-js
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -19,16 +19,17 @@ const Profile = () => {
 
       setUserData(response.data.data);
 
-      // if (response.data.data.avatar) {
-      //   const avatarBuffer = response.data.data.avatar;
-
-      //   const textDecoder = new TextDecoder(); // Create a TextDecoder instance
-      //   const avatarUrl = textDecoder.decode(avatarBuffer.data); // Decode Buffer to string
-
-      //   setAvatarSource({uri: avatarUrl});
-      // } else {
-      //   console.warn('Avatar URL not found in response');
-      // }
+      if (response.data.data.avatar) {
+        // Convert Buffer-like data to base64-encoded string
+        const avatarUrl = `data:image/jpeg;base64,${fromByteArray(
+          response.data.data.avatar.data,
+        )}`;
+        setAvatarSource(avatarUrl);
+        console.log(response.data.data.avatar.data);
+        console.log(avatarSource);
+      } else {
+        console.warn('Avatar data not found in response');
+      }
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
@@ -44,6 +45,14 @@ const Profile = () => {
       {userData && (
         <Card style={styles.card}>
           <Card.Content>
+            {/* Display Image */}
+
+            <Image
+              source={avatarSource || require('../assets/appicons/icon.png')}
+              style={styles.avatar}
+              accessibilityLabel="Profile Image"
+            />
+
             <Title>{userData.fullName}</Title>
             <Paragraph>Email: {userData.email}</Paragraph>
             <Paragraph>Phone Number: {userData.phone}</Paragraph>
@@ -59,10 +68,24 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  welcomeText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  card: {
+    width: '80%',
+  },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
+    marginBottom: 10,
   },
 });
 

@@ -6,12 +6,10 @@ import OnBoardingUI from './src/Screens/OnBoardingUI';
 import {NavigationContainer} from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import SplashScreen from 'react-native-splash-screen';
-import {IP, LINEARCOLOR} from './src/constants/theme';
-import {
-  CountryData,
-  getStatesByCountryIsoCode,
-} from './src/Components/Countries';
+import {COLORS, IP, LINEARCOLOR} from './src/constants/theme';
+
 import axios from 'axios';
+
 export default function App() {
   const [showHomePage, setShowHomePage] = useState(true);
 

@@ -82,14 +82,14 @@ const Login = ({navigation}) => {
           AsyncStorage.setItem('token', res.data.token);
           console.log(res.data);
           setFormData({email: null, password: null});
-          navigation.navigate('HomeScreen');
+          navigation.navigate('Tabs');
         } else {
           // Handle login error
           Alert.alert('Login Failed', res.data.message);
         }
       } catch (error) {
         // Handle any other errors
-        console.error('Login Error:', error.response.data);
+        console.error('Login Error:', error.response);
 
         Alert.alert(error.response.data.message);
       }
