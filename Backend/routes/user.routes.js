@@ -1,5 +1,4 @@
 const express = require("express");
-const { check } = require("express-validator");
 const multer = require("multer");
 const {
   signup,
@@ -49,7 +48,7 @@ usersRouter.post(
 
 usersRouter.post("/login", validateUserSignIn, uservalidation, signin);
 
-usersRouter.post("/getUserData", authenticate, getUserData);
+usersRouter.get("/getUserData", authenticate, getUserData);
 
 usersRouter.post("/forgetpassword", forgetpassword);
 
