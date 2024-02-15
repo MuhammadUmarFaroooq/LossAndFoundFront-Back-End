@@ -162,16 +162,25 @@ export default function BottomUpNavigation({navigation}) {
           },
         }}
       />
-      <Tab.Screen
+     <Tab.Screen
         name="Profile"
         component={Profile}
-        options={{
-          tabBarIcon: ({color, size}) => {
-            return (
-              <Icon name="account-circle-outline" size={size} color={color} />
-            );
-          },
-        }}
+        options={({ navigation }) => ({
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="account-circle-outline" size={size} color={color} />
+          ),
+          headerTitle: 'User Profile',
+          headerTitleAlign: 'center',
+          headerLeft: () => (
+            <Icon.Button
+              name="arrow-left"
+              size={25}
+              color="#000"
+              backgroundColor="transparent"
+              onPress={() => navigation.navigate('Home')}
+            />
+          ),
+        })}
       />
     </Tab.Navigator>
   );
