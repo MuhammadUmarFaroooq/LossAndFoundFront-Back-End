@@ -51,6 +51,7 @@ const postUpload = async (req, res) => {
     await post.save();
 
     res.status(201).json({
+      status: "ok",
       success: true,
       message: "Post created successfully.",
     });

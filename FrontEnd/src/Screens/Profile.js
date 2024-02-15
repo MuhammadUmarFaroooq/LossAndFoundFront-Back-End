@@ -13,9 +13,11 @@ const Profile = () => {
   async function getData() {
     try {
       const token = await AsyncStorage.getItem('token');
+
       const response = await axios.post(`http://${IP}:8000/users/getUserData`, {
         token,
       });
+      console.log(response.data.data);
 
       setUserData(response.data.data);
 

@@ -63,7 +63,6 @@ postRouter.get("/", (req, res) => {
 postRouter.post(
   "/uploadPost",
   postauthenticate,
-  validateRequiredFields,
   upload.array("images", 5), // Allow up to 5 images
   postUpload
 );

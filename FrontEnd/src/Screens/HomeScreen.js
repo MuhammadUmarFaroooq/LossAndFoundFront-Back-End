@@ -138,6 +138,7 @@ const HomeScreen = () => {
           gap: 20,
           paddingHorizontal: 16,
           paddingBottom: 5,
+          paddingTop: 7,
         }}>
         {categories.map((item, index) => (
           <TouchableOpacity
@@ -203,33 +204,35 @@ const styles = StyleSheet.create({
   categoryText: {
     fontSize: 20,
     fontFamily: 'Poppins-Light',
-    color: COLORS.grey,
+    color: '#37474F',
+    textAlign: 'center',
   },
   categoryTextActive: {
     fontSize: 20,
     fontFamily: 'Poppins-Light',
     color: COLORS.white,
+    textAlign: 'center',
   },
   inactiveCategoryBtn: {
-    borderRadius: 30,
+    borderRadius: 10,
     borderWidth: 1,
-    backgroundColor: COLORS.lightGrey,
+    backgroundColor: '#F0F1F2',
     // borderColor: COLORS.black,
-    paddingVertical: 5,
+    paddingVertical: 4,
     paddingHorizontal: 28,
   },
   activeCategoryBtn: {
-    borderRadius: 30,
+    borderRadius: 10,
     backgroundColor: COLORS.blue,
     color: COLORS.white,
     borderWidth: 2,
-    paddingVertical: 5,
+    paddingVertical: 4,
     paddingHorizontal: 28,
   },
   listing: {
     padding: 16,
     gap: 10,
-    marginVertical: 16,
+    marginVertical: 10,
   },
   image: {
     width: '100%',
