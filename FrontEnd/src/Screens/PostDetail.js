@@ -1,30 +1,41 @@
 import React, {useState} from 'react';
-import {View, Text, Button, ScrollView, Image} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Modal,
+} from 'react-native';
 import {useTheme, TextInput, Button as PaperButton} from 'react-native-paper';
-
-import {COLORS} from '../constants/theme';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {launchImageLibrary} from 'react-native-image-picker';
+import SuperscriptText from '../Components/SuperscriptText ';
+import IconComponent from 'react-native-vector-icons/Fontisto';
+import {COLORS} from '../constants/theme';
 
 export default function PostCreation({navigation, route}) {
   const theme = useTheme();
   const {subcategoryName} = route.params;
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(subcategoryName);
   const [description, setDescription] = useState('');
   const [brand, setBrand] = useState('');
   const [itemColor, setItemColor] = useState('');
-  const [dateTime, setDateTime] = useState('');
+  const [dateTime, setDateTime] = useState(new Date());
+  const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+  const [showTimePickerModal, setShowTimePickerModal] = useState(false);
 
-  const MAX_IMAGES = 5; // Maximum number of images allowed
-
+  const MAX_IMAGES = 5;
   const [selectedImages, setSelectedImages] = useState([]);
+
   const selectImages = () => {
     const options = {
       mediaType: 'photo',
       quality: 0.8,
       maxHeight: 500,
       maxWidth: 500,
-      selectionLimit: MAX_IMAGES - selectedImages.length, // Limit the selection based on the remaining slots
+      selectionLimit: MAX_IMAGES - selectedImages.length,
     };
 
     launchImageLibrary(options, response => {
@@ -41,7 +52,6 @@ export default function PostCreation({navigation, route}) {
           uri: asset.uri,
           fileSize: asset.fileSize,
         }));
-
         setSelectedImages(prevImages => [...prevImages, ...newImages]);
       }
     });
@@ -52,13 +62,17 @@ export default function PostCreation({navigation, route}) {
     // Access the input values (title, description, etc.) and images
   };
 
+  const onChangeDateTime = (event, selectedDate, time) => {
+    if (time) {
+      setShowTimePickerModal(false);
+    }
+    setShowDatePickerModal(false);
+    const currentDate = selectedDate || dateTime;
+    setDateTime(currentDate);
+  };
+
   return (
     <ScrollView style={{padding: 10, backgroundColor: 'white'}}>
-      <Text style={{fontSize: 30, marginBottom: 30, fontFamily: 'rubik-bold'}}>
-        {subcategoryName}
-      </Text>
-
-      {/* Image selection */}
       <View
         style={{
           marginBottom: 20,
@@ -110,43 +124,97 @@ export default function PostCreation({navigation, route}) {
         </PaperButton>
       </View>
 
-      {/* Input fields */}
       <TextInput
-        label="Title"
+        label={
+          <Text>
+            Title <SuperscriptText>*</SuperscriptText>
+          </Text>
+        }
         value={title}
         onChangeText={text => setTitle(text)}
-        style={{
-          marginBottom: 8,
-          backgroundColor: COLORS.lightGrey,
-          color: 'black',
-        }}
+        style={{marginBottom: 8, color: 'black'}}
       />
       <TextInput
-        label="Description"
+        label={
+          <Text>
+            Description<SuperscriptText>*</SuperscriptText>
+          </Text>
+        }
         value={description}
         onChangeText={text => setDescription(text)}
         style={{marginBottom: 8}}
       />
       <TextInput
-        label="Brand"
+        label={
+          <Text>
+            Brand<SuperscriptText>*</SuperscriptText>
+          </Text>
+        }
         value={brand}
         onChangeText={text => setBrand(text)}
         style={{marginBottom: 8}}
       />
       <TextInput
-        label="Item Color"
+        label={
+          <Text>
+            Item Color<SuperscriptText>*</SuperscriptText>
+          </Text>
+        }
         value={itemColor}
         onChangeText={text => setItemColor(text)}
         style={{marginBottom: 8}}
       />
-      <TextInput
-        label="Date and Time"
-        value={dateTime}
-        onChangeText={text => setDateTime(text)}
-        style={{marginBottom: 8}}
-      />
 
-      {/* Save button or other actions */}
+      <View style={{marginBottom: 20}}>
+        <TouchableOpacity onPress={() => setShowDatePickerModal(true)}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{position: 'relative', width: '100%'}}>
+              <TextInput
+                label="Date and Time"
+                value={dateTime.toString()}
+                style={{paddingRight: 40}} // Adjust paddingRight to accommodate icon
+              />
+              <IconComponent
+                name="date"
+                size={24}
+                color={COLORS.blue}
+                style={{
+                  position: 'absolute',
+                  right: 10,
+                  top: '50%',
+                  transform: [{translateY: -12}],
+                }} // Adjust position as needed
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+      {showDatePickerModal && (
+        <DateTimePicker
+          testID="datePicker"
+          value={dateTime}
+          mode="date"
+          is24Hour={true}
+          display="default"
+          onChange={(event, selectedDate) => {
+            setShowTimePickerModal(true);
+            onChangeDateTime(event, selectedDate, false);
+          }}
+        />
+      )}
+      {showTimePickerModal && (
+        <DateTimePicker
+          testID="timePicker"
+          value={dateTime}
+          mode="time"
+          is24Hour={true}
+          display="default"
+          onChange={(event, selectedDate) => {
+            onChangeDateTime(event, selectedDate, true);
+          }}
+        />
+      )}
+
       <PaperButton
         mode="contained"
         onPress={handleSave}
