@@ -12,7 +12,7 @@ const {
   validateUserSignIn,
 } = require("../middlewares/user.validmiddle");
 const authenticate = require("../middlewares/auth.middleware");
-const sharp = require("sharp");
+const postauthenticate = require("../middlewares/post.auth");
 const User = require("../modals/users");
 const Router = express.Router;
 
@@ -32,7 +32,19 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    // Check if the file is an image
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error("Only image files are allowed!"), false);
+    }
+    cb(null, true);
+  },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB limit
+  },
+});
 
 usersRouter.get("/", (req, res) => {
   res.json({ success: true, message: "Elcome to Backend" });
@@ -40,15 +52,15 @@ usersRouter.get("/", (req, res) => {
 
 usersRouter.post(
   "/signup",
+  upload.single("avatar"),
   validateUserSignUp,
   uservalidation,
-  upload.single("avatar"),
   signup
 );
 
 usersRouter.post("/login", validateUserSignIn, uservalidation, signin);
 
-usersRouter.get("/getUserData", authenticate, getUserData);
+usersRouter.get("/getUserData", postauthenticate, getUserData);
 
 usersRouter.post("/forgetpassword", forgetpassword);
 

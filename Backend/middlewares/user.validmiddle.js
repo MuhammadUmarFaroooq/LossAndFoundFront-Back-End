@@ -43,12 +43,8 @@ uservalidation = (req, res, next) => {
 };
 
 const validateUserSignIn = [
-  check("email").trim().isEmail().withMessage("Email or Password is required"),
-  check("password")
-    .trim()
-    .not()
-    .isEmpty()
-    .withMessage("Email or Password is required"),
+  check("email").trim().isEmail().withMessage("Email is required"),
+  check("password").trim().not().isEmpty().withMessage(" Password is required"),
 ];
 
 module.exports = { validateUserSignUp, uservalidation, validateUserSignIn };

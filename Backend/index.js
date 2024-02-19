@@ -1,5 +1,5 @@
 const express = require("express");
-
+const path = require("path");
 const app = express();
 require("dotenv").config();
 const mongoose = require("mongoose");
@@ -11,6 +11,12 @@ connectDB();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(express.static(path.join("public")));
+// Add a specific route to serve images from the "public/Images/uploads" directory
+app.use(
+  "/images/uploads",
+  express.static(path.join("public", "Images", "uploads"))
+);
 
 app.use("/users", usersRouter);
 app.use("/posts", postRouter);

@@ -115,9 +115,6 @@ const SignupScreen = ({navigation}) => {
 
   const handleSignup = async () => {
     // Validate form data
-    console.log('hol');
-
-    // ... (existing code)
     if (
       !firstName ||
       !phone ||
@@ -134,9 +131,9 @@ const SignupScreen = ({navigation}) => {
         email: email ? '' : 'Required',
         password: password ? '' : 'Required',
         confirmPassword: confirmPassword ? '' : 'Required',
-        country: selectedCountry ? '' : 'Required',
-        state: selectedState ? '' : 'Required',
-        city: selectedCity ? '' : 'Required',
+        selectedCountry: selectedCountry ? '' : 'Required',
+        selectedState: selectedState ? '' : 'Required',
+        selectedCity: selectedCity ? '' : 'Required',
       });
     } else if (password !== confirmPassword) {
       setErrors({
@@ -144,46 +141,42 @@ const SignupScreen = ({navigation}) => {
         confirmPassword: 'Passwords do not match',
       });
     } else {
-      // All fields are filled, you can proceed with signup logic
-      console.log('Signup successful!');
+      const userData = new FormData();
+      userData.append('fullName', firstName);
+      userData.append('phone', `${phoneCountryCallingCode}${phone}`);
+      userData.append('email', email);
+      userData.append('password', password);
+      userData.append('confirmPassword', confirmPassword);
+      userData.append('country', selectedCountry.name);
+      userData.append('province', selectedState.name);
+      userData.append('city', selectedCity.name);
 
-      const userData = {
-        fullName: firstName,
-        phone: `${phoneCountryCallingCode}${phone}`,
-        email,
-        password,
-        confirmPassword, // Add confirmPassword to userData
-        country: selectedCountry.name,
-        province: selectedState.name,
-        city: selectedCity.name,
-        avatar: avatarSource ? avatarSource.uri : null,
-      };
+      if (avatarSource) {
+        const imageType = avatarSource.type || 'image/jpeg';
+        userData.append('avatar', {
+          uri: avatarSource.uri,
+          type: imageType,
+          name: `avatar.${imageType.split('/').pop()}`,
+        });
+      }
 
       try {
-        if (
-          firstName ||
-          phone ||
-          email ||
-          password ||
-          confirmPassword || // Include confirmPassword in the validation
-          selectedCountry ||
-          selectedState ||
-          selectedCity
-        ) {
-          const res = await axios
-            .post(`http://${IP}:8000/users/signup`, userData)
-            .then(res => {
-              console.log(res.data);
-              if (res.data.status == 'ok') {
-                Alert.alert('Sign Up Succesful');
-              }
-            });
-        } else {
-          Alert.alert('Fill Mandatory details');
-        }
+        const res = await axios.post(
+          `http://${IP}:8000/users/signup`,
+          userData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
+        console.log(res.data);
 
-        // Navigate to login screen only if there are no backend errors
-        navigation.navigate('Login');
+        if (res.data.status === 'ok') {
+          Alert.alert('Sign Up Successful');
+          // Navigate to login screen only if there are no backend errors
+          navigation.navigate('Login');
+        }
       } catch (err) {
         console.log(err.response.data);
         Alert.alert(err.response.data.message);

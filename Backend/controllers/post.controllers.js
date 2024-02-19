@@ -64,4 +64,32 @@ const postUpload = async (req, res) => {
   }
 };
 
-module.exports = { postUpload };
+const getAllPosts = async (req, res) => {
+  try {
+    const user = req.user;
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated.",
+      });
+    }
+
+    // Fetch all posts
+    const allPosts = await Posts.find();
+
+    res.status(200).json({
+      success: true,
+      posts: allPosts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = { postUpload, getAllPosts };

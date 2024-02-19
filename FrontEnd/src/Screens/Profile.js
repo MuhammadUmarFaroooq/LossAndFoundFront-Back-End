@@ -4,33 +4,22 @@ import {Card, Title, Paragraph} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {IP} from '../constants/theme';
-import {fromByteArray} from 'base64-js'; // Import from base64-js
 
 const Profile = ({navigation}) => {
   const [userData, setUserData] = useState(null);
-  const [avatarSource, setAvatarSource] = useState(null); // State for avatar
 
   async function getData() {
     try {
       const token = await AsyncStorage.getItem('token');
-
-      const response = await axios.post(`http://${IP}:8000/users/getUserData`, {
-        token,
+      const response = await axios.get(`http://${IP}:8000/users/getUserData`, {
+        headers: {
+          Authorization: `${token}`,
+        },
       });
-      console.log('The response is', response.data.data.avatar.data);
+
+      console.log('User data:', response.data);
+
       setUserData(response.data.data);
-
-      if (response.data.data.avatar) {
-        // Convert Buffer-like data to base64-encoded string
-        const avatarUrl = `data:image/png;base64,${fromByteArray(
-          response.data.data.avatar.data,
-        )}`;
-        setAvatarSource(avatarUrl);
-
-        console.log(avatarSource);
-      } else {
-        console.warn('Avatar data not found in response');
-      }
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
@@ -47,7 +36,9 @@ const Profile = ({navigation}) => {
           {/* Image section */}
           <View style={styles.imageContainer}>
             <Image
-              source={{uri: avatarSource}}
+              source={{
+                uri: `http://${IP}:8000/Images/uploads/${userData.avatar}`,
+              }}
               style={styles.avatar}
               accessibilityLabel="Profile Image"
             />
@@ -99,9 +90,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 150, // Adjust the width based on your preference
+    height: 150, // Adjust the height based on your preference
+    borderRadius: 75, // Half of the width and height for a circular image
   },
   detailContainer: {
     alignItems: 'center',

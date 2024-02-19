@@ -17,7 +17,6 @@ const signup = async (req, res) => {
       city,
       password,
       confirmPassword,
-      avatar,
     } = req.body;
 
     const isNewUser = await Users.isThisEmailInUse(email.toLowerCase());
@@ -36,6 +35,8 @@ const signup = async (req, res) => {
       });
     }
 
+    const avatarFileName = req.file ? req.file.filename : null; // Get the filename
+
     const userToSave = new Users({
       fullName,
       email: email.toLowerCase(),
@@ -45,7 +46,7 @@ const signup = async (req, res) => {
       city,
       password,
       confirmPassword,
-      avatar,
+      avatar: avatarFileName, // Save the filename instead of buffer
     });
 
     await userToSave.save();
