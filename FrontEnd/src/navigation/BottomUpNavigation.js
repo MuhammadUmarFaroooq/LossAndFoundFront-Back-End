@@ -11,6 +11,7 @@ import PostCreation from '../Screens/PostCreation';
 import {COLORS} from '../constants/theme';
 import Profile from '../Screens/Profile';
 import {Categories} from '../constants/AppDetail';
+import Chat from '../Screens/Chat';
 
 const Tab = createBottomTabNavigator();
 const MusicRoute = () => <Text>Music</Text>;
@@ -155,18 +156,18 @@ export default function BottomUpNavigation({navigation}) {
       />
       <Tab.Screen
         name="chat"
-        component={AlbumsRoute}
+        component={Chat}
         options={{
           tabBarIcon: ({color, size}) => {
             return <Icon2 name="message1" size={size} color={color} />;
           },
         }}
       />
-     <Tab.Screen
+      <Tab.Screen
         name="Profile"
         component={Profile}
-        options={({ navigation }) => ({
-          tabBarIcon: ({ color, size }) => (
+        options={({navigation}) => ({
+          tabBarIcon: ({color, size}) => (
             <Icon name="account-circle-outline" size={size} color={color} />
           ),
           headerTitle: 'User Profile',
