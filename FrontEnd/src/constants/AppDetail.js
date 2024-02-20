@@ -165,7 +165,12 @@ export const Categories = [
       'Gym & Fitness',
       'Other Instruments',
     ],
-  },
+  },{
+    name:'no found',
+    subcategories: [
+      'other'
+    ],
+  }
 ];
 
 export const backgroundColors = ';';
