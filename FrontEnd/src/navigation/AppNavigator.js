@@ -14,6 +14,7 @@ import BottomUpNavigation from './BottomUpNavigation';
 import HomeScreen from '../Screens/HomeScreen';
 import PostDetail from '../Screens/PostDetail';
 import Listings from '../Screens/Listings';
+import DetailsPage from '../Screens/DetailsPage';
 
 const Stack = createStackNavigator();
 
@@ -70,6 +71,7 @@ const AppNavigator = props => {
       />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Listings" component={Listings} />
+      <Stack.Screen name="DetailsPage" component={DetailsPage} />
     </Stack.Navigator>
   );
 };

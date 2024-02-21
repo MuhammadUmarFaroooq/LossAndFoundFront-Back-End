@@ -15,6 +15,7 @@ import {COLORS, IP} from '../constants/theme';
 import {Link} from 'react-router-native';
 import listingsData from '../assets/data/airbnb-listings.json';
 import {useNavigation} from '@react-navigation/native';
+
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -101,7 +102,7 @@ const HomeScreen = () => {
     const timeString = formattedDate.toLocaleTimeString();
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('Listings', {itemId: item.id})}>
+        onPress={() => navigation.navigate('Listings', {itemId: item._id})}>
         <View style={styles.listing}>
           <Image
             source={{
@@ -146,7 +147,7 @@ const HomeScreen = () => {
   const renderRow = ({item}) => {
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('Listings', {itemId: item.id})}>
+        onPress={() => navigation.navigate('DetailsPage', {id: item.id})}>
         <View style={styles.listing}>
           <Image source={{uri: item.medium_url}} style={styles.image} />
           <TouchableOpacity style={{position: 'absolute', right: 30, top: 30}}>

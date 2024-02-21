@@ -16,6 +16,9 @@ const Chat = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
+  const [drawingMode, setDrawingMode] = useState(false);
+  const [circleCenter, setCircleCenter] = useState(null);
+  const [circleRadius, setCircleRadius] = useState(500);
 
   useEffect(() => {
     requestLocationPermission();
@@ -37,17 +40,24 @@ const Chat = () => {
 
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
           setPermissionGranted(true);
+          // Permission granted, now get the current location
+          await getCurrentLocation();
         } else {
           Alert.alert('Please Allow Location');
           console.warn('Location permission denied');
         }
       } else if (Platform.OS === 'ios') {
-        await GetLocation.requestPermissions({ios: {enableHighAccuracy: true}});
+        await GetLocation.requestPermissions({
+          ios: {enableHighAccuracy: true},
+        });
         setPermissionGranted(true); // Assuming permission is granted on iOS
+        // Permission granted, now get the current location
+        await getCurrentLocation();
       }
     } catch (error) {
       console.error('Error requesting location permission:', error);
     }
+    setDrawingMode(true);
   };
 
   const getCurrentLocation = async () => {
@@ -65,8 +75,8 @@ const Chat = () => {
         timeout: 15000,
       });
       setSelectedLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: location.latitude,
+        longitude: location.longitude,
       });
     } catch (error) {
       console.warn('Error getting current location:', error);
@@ -82,13 +92,27 @@ const Chat = () => {
       return;
     }
 
-    const {coordinate} = event.nativeEvent;
-    setSelectedLocation(coordinate);
-    console.log('Selected Location:', coordinate);
+    if (drawingMode) {
+      const {coordinate} = event.nativeEvent;
+      setCircleCenter(coordinate);
+    }
   };
 
-  const handleMarkerDrag = coordinate => {
-    setSelectedLocation(coordinate);
+  const handleMapLongPress = event => {
+    if (!permissionGranted || !drawingMode) {
+      return;
+    }
+
+    const {coordinate} = event.nativeEvent;
+    setCircleCenter(coordinate);
+  };
+
+  const enableDrawingMode = () => {
+    setDrawingMode(true);
+  };
+
+  const disableDrawingMode = () => {
+    setDrawingMode(false);
   };
 
   const openMap = () => {
@@ -127,7 +151,9 @@ const Chat = () => {
               latitudeDelta: 1.015,
               longitudeDelta: 1.0121,
             }}
-            onPress={handleMapPress}>
+            enabled={permissionGranted}
+            onPress={handleMapPress}
+            onLongPress={handleMapLongPress}>
             {selectedLocation && (
               <Marker
                 coordinate={selectedLocation}
@@ -136,12 +162,14 @@ const Chat = () => {
                 onDragEnd={e => handleMarkerDrag(e.nativeEvent.coordinate)}
               />
             )}
-            <Circle
-              center={{latitude: 32.1877, longitude: 74.1945}}
-              radius={500}
-              strokeColor="#2a2b2b"
-              fillColor="#b2ebe9"
-            />
+            {circleCenter && (
+              <Circle
+                center={circleCenter}
+                radius={circleRadius}
+                strokeColor="#2a2b2b"
+                fillColor="#b2ebe9"
+              />
+            )}
           </MapView>
           <TouchableOpacity onPress={closeMap} style={styles.closeButton}>
             <Text>Close Map</Text>
@@ -150,6 +178,16 @@ const Chat = () => {
             onPress={getCurrentLocation}
             style={styles.currentLocationButton}>
             <Text>Current Location</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={enableDrawingMode}>
+            <View style={styles.button}>
+              <Text>Enable Drawing</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={disableDrawingMode}>
+            <View style={styles.button}>
+              <Text>Disable Drawing</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </Modal>
