@@ -16,7 +16,7 @@ import {COLORS, IP} from '../constants/theme';
 import {Link} from 'react-router-native';
 import listingsData from '../assets/data/airbnb-listings.json';
 import {useNavigation} from '@react-navigation/native';
-
+import { Tabs, TabScreen, TabsProvider, useTabIndex, useTabNavigation } from 'react-native-paper-tabs';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -45,10 +45,13 @@ const HomeScreen = () => {
   };
   useEffect(() => {
     // Set "All" posts by default
+    setPosts(listingsData.filter(item => item.category === 'Lost'));
     setPosts(listingsData);
+    getPostData()
   }, []);
 
   const handleSearch = query => setSearchQuery(query);
+  
 
   const handleCategoryPress = async index => {
     let categoryMessage = '';
@@ -56,7 +59,7 @@ const HomeScreen = () => {
     switch (categories[index].name) {
       case 'All':
         categoryMessage = 'All Posts';
-        setPosts(listingsData);
+        
         break;
       case 'Lost':
         categoryMessage = 'Lost Posts';
@@ -218,7 +221,7 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
+      {/* <ScrollView
         ref={scrollViewRef}
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -248,8 +251,8 @@ const HomeScreen = () => {
             </Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
-
+      </ScrollView> */}
+{/* 
       {selectedCategoryMessage === 'All Posts' && (
         <FlatList
           renderItem={renderRow}
@@ -270,7 +273,49 @@ const HomeScreen = () => {
             listRef.current = flatListRef;
           }}
         />
-      )}
+      )} */}
+       <TabsProvider>
+  <Tabs style={{width: 400, marginTop: 2, backgroundColor:'#fff'}}  mode="scrollable" showLeadingSpace={false}  disableSwipe={false}  theme={{ colors: { primary: 'blue' } }}>
+  <TabScreen label="All">
+      {/* Component for Found items */}
+      <View style={styles.tabContent}>
+        <FlatList
+          renderItem={renderRow}
+          data={posts}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      </View>
+    </TabScreen>
+    <TabScreen label="Lost">
+      {/* Component for Lost items */}
+      <View style={styles.tabContent}>
+        {/* <FlatList
+          renderItem={renderLostPostRow}
+          data={posts}
+          keyExtractor={(item) => item.id.toString()}
+        /> */}
+      </View>
+    </TabScreen>
+    <TabScreen label="Found">
+      {/* Component for Found items */}
+      <View style={styles.tabContent}>
+        <FlatList
+          renderItem={renderFoundPostRow}
+          data={foundPosts}
+          keyExtractor={(item) => item._id.toString()}
+        />
+      </View>
+    </TabScreen>
+ 
+    <TabScreen label="NearBy">
+      {/* Component for Nearby items */}
+      <View style={styles.tabContent}>
+        <Text>Nearby items content goes here</Text>
+      </View>
+    </TabScreen>
+  </Tabs>
+</TabsProvider>
+      
     </View>
   );
 };

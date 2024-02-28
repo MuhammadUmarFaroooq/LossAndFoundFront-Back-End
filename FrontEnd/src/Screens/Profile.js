@@ -9,9 +9,10 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { backgroundColors } from '../constants/AppDetail';
 
-const Profile = ({ navigation }) => {
+const Profile = ({ navigation}) => {
   const [userData, setUserData] = useState(null);
   const [foundPosts, setFoundPosts] = useState([]);
+  
   console.log(foundPosts);
   async function getData() {
     try {
@@ -51,7 +52,7 @@ const Profile = ({ navigation }) => {
 
   const renderFoundPostRow = ({ item }) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Listings', { itemId: item.id })}
+      onPress={() => navigation.navigate('Listings', { itemId: item._id })}
     >
       <View style={styles.listing}>
         {/* Render the image */}
@@ -115,7 +116,9 @@ const Profile = ({ navigation }) => {
             </View>
 
             {/* Edit profile button */}
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity style={styles.editButton} onPress={()=>{
+              navigation.navigate('EditProfile', { userData: userData })
+            }}>
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
 

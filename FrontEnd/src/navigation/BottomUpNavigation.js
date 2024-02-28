@@ -183,6 +183,7 @@ export default function BottomUpNavigation({navigation}) {
           ),
         })}
       />
+     
     </Tab.Navigator>
   );
 }

@@ -24,15 +24,17 @@ import CountryPicker from 'react-native-country-picker-modal';
 import SearchableDropdown from 'react-native-searchable-dropdown';
 const MAX_IMAGE_SIZE = 1024 * 1024 * 5;
 
-const SignupScreen = ({navigation}) => {
-  const [firstName, setFirstName] = useState('');
-  const [email, setEmail] = useState('');
+const EditProfile = ({navigation,route}) => {
+const { userData } = route.params;
+
+  const [firstName, setFirstName] = useState(userData.fullName);
+  
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState(''); // New state
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
-  const [avatarSource, setAvatarSource] = useState(null);
+  const [avatarSource, setAvatarSource] = useState(userData.avatar);
   const [isModalVisible, setModalVisible] = useState(false);
   const [phoneCountryCode, setPhoneCountryCode] = useState();
   const [phoneCountryCallingCode, setPhoneCountryCallingCode] = useState();
@@ -105,7 +107,6 @@ const SignupScreen = ({navigation}) => {
   const [errors, setErrors] = useState({
     firstName: '',
     phone: '',
-    email: '',
     password: '',
     confirmPassword: '', // New error state
     selectedCountry: '',
@@ -118,7 +119,6 @@ const SignupScreen = ({navigation}) => {
     if (
       !firstName ||
       !phone ||
-      !email ||
       !password ||
       !confirmPassword ||
       !selectedCountry ||
@@ -128,7 +128,6 @@ const SignupScreen = ({navigation}) => {
       setErrors({
         firstName: firstName ? '' : 'Required',
         phone: phone ? '' : 'Required',
-        email: email ? '' : 'Required',
         password: password ? '' : 'Required',
         confirmPassword: confirmPassword ? '' : 'Required',
         selectedCountry: selectedCountry ? '' : 'Required',
@@ -144,7 +143,6 @@ const SignupScreen = ({navigation}) => {
       const userData = new FormData();
       userData.append('fullName', firstName);
       userData.append('phone', `${phoneCountryCallingCode}${phone}`);
-      userData.append('email', email);
       userData.append('password', password);
       userData.append('confirmPassword', confirmPassword);
       userData.append('country', selectedCountry.name);
@@ -188,7 +186,9 @@ const SignupScreen = ({navigation}) => {
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity style={styles.avatarContainer}>
         {avatarSource ? (
-          <Avatar.Image source={avatarSource} size={100} />
+          <Avatar.Image  source={{
+            uri: `http://${IP}:8000/Images/uploads/${avatarSource}`,
+          }} size={200} />
         ) : (
           <Avatar.Image
             source={{uri: 'https://i.imgur.com/BoN9kdC.png'}}
@@ -248,23 +248,7 @@ const SignupScreen = ({navigation}) => {
         style={[styles.input, {borderColor: errors.firstName ? 'red' : 'gray'}]}
         error={errors.firstName !== ''}
       />
-      <TextInput
-        label={
-          <Text>
-            Email <SuperscriptText>*</SuperscriptText>
-          </Text>
-        }
-        value={email}
-        onChangeText={text => {
-          setEmail(text);
-          setErrors(prevErrors => ({
-            ...prevErrors,
-            email: text ? '' : 'Required',
-          }));
-        }}
-        style={[styles.input, {borderColor: errors.email ? 'red' : 'gray'}]}
-        error={errors.email !== ''}
-      />
+     
       <View style={styles.inputContainer}>
         <CountryPicker
           countryCode={phoneCountryCode}
@@ -395,9 +379,10 @@ const SignupScreen = ({navigation}) => {
           backgroundColor: COLORS.blue,
           borderRadius: 50,
           marginTop: 12,
+          alignSelf:'center'
         }}
         labelStyle={{color: 'white'}}>
-        Sign Up
+        update Profile
       </Button>
     </ScrollView>
   );
@@ -408,7 +393,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   avatarContainer: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 20,
     marginHorizontal: 20,
   },
@@ -461,4 +446,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default EditProfile;
