@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import {Searchbar} from 'react-native-paper';
+import useLikeStore from '../Zustand_store/LikeStore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {COLORS, IP} from '../constants/theme';
 import {Link} from 'react-router-native';
@@ -37,7 +38,11 @@ const HomeScreen = () => {
     useState('All Posts');
   const [foundPosts, setFoundPosts] = useState([]);
   const items = useMemo(() => listingsData, []);
+  const {likedImages, addLikedImage, removeLikedImage} = useLikeStore(); // Use the Zustand store
 
+  const handleHeartPress = image => {
+    console.log('hi');
+  };
   useEffect(() => {
     // Set "All" posts by default
     setPosts(listingsData);
@@ -100,6 +105,7 @@ const HomeScreen = () => {
     const formattedDate = new Date(item.dateOfItem);
     const dateString = formattedDate.toLocaleDateString();
     const timeString = formattedDate.toLocaleTimeString();
+    const isLiked = likedImages.includes(item.images[0]);
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('Listings', {itemId: item._id})}>
@@ -110,8 +116,22 @@ const HomeScreen = () => {
             }}
             style={styles.image}
           />
-          <TouchableOpacity style={{position: 'absolute', right: 30, top: 30}}>
-            <EvilIcons name={'heart'} size={30} color="#000" />
+
+          <TouchableOpacity
+            style={{position: 'absolute', right: 30, top: 30}}
+            onPress={() => {
+              console.log('hi');
+              if (likedImages.includes(item.images[0])) {
+                removeLikedImage(item.images[0]);
+              } else {
+                addLikedImage(item.images[0]);
+              }
+            }}>
+            <EvilIcons
+              name={'heart'}
+              size={30}
+              color={isLiked ? 'red' : '#000'}
+            />
           </TouchableOpacity>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={{fontSize: 16, fontFamily: 'Poppins-Bold'}}>
