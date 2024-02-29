@@ -25,11 +25,8 @@ export const SIZES = {
   width,
   height,
 };
-<<<<<<< Updated upstream
+
 export const IP = '172.16.100.61';
-=======
-export const IP = '10.211.0.124';
->>>>>>> Stashed changes
 
 export const LINEARCOLOR = [
   'hsla(270, 4%, 100%, 1)',

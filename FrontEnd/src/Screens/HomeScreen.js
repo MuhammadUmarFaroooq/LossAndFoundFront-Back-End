@@ -9,6 +9,7 @@ import {
   FlatList,
   Image,
 } from 'react-native';
+import PostItem from './PostItem';
 import {Searchbar} from 'react-native-paper';
 import useLikeStore from '../Zustand_store/LikeStore';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -16,8 +17,15 @@ import {COLORS, IP} from '../constants/theme';
 import {Link} from 'react-router-native';
 import listingsData from '../assets/data/airbnb-listings.json';
 import {useNavigation} from '@react-navigation/native';
-import { Tabs, TabScreen, TabsProvider, useTabIndex, useTabNavigation } from 'react-native-paper-tabs';
+import {
+  Tabs,
+  TabScreen,
+  TabsProvider,
+  useTabIndex,
+  useTabNavigation,
+} from 'react-native-paper-tabs';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -47,11 +55,10 @@ const HomeScreen = () => {
     // Set "All" posts by default
     setPosts(listingsData.filter(item => item.category === 'Lost'));
     setPosts(listingsData);
-    getPostData()
+    getPostData();
   }, []);
 
   const handleSearch = query => setSearchQuery(query);
-  
 
   const handleCategoryPress = async index => {
     let categoryMessage = '';
@@ -59,7 +66,7 @@ const HomeScreen = () => {
     switch (categories[index].name) {
       case 'All':
         categoryMessage = 'All Posts';
-        
+
         break;
       case 'Lost':
         categoryMessage = 'Lost Posts';
@@ -105,59 +112,12 @@ const HomeScreen = () => {
   };
 
   const renderFoundPostRow = ({item}) => {
-    const formattedDate = new Date(item.dateOfItem);
-    const dateString = formattedDate.toLocaleDateString();
-    const timeString = formattedDate.toLocaleTimeString();
-    const isLiked = likedImages.includes(item.images[0]);
     return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Listings', {itemId: item._id})}>
-        <View style={styles.listing}>
-          <Image
-            source={{
-              uri: `http://${IP}:8000/Images/uploads/${item.images[0]}`,
-            }}
-            style={styles.image}
-          />
-
-          <TouchableOpacity
-            style={{position: 'absolute', right: 30, top: 30}}
-            onPress={() => {
-              console.log('hi');
-              if (likedImages.includes(item.images[0])) {
-                removeLikedImage(item.images[0]);
-              } else {
-                addLikedImage(item.images[0]);
-              }
-            }}>
-            <EvilIcons
-              name={'heart'}
-              size={30}
-              color={isLiked ? 'red' : '#000'}
-            />
-          </TouchableOpacity>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={{fontSize: 16, fontFamily: 'Poppins-Bold'}}>
-              {item.name}
-            </Text>
-
-            <View style={{flexDirection: 'row', gap: 4}}>
-              <TouchableOpacity>
-                <EvilIcons name={'comment'} size={26} color="#000" />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <SahreIcon name={'share'} size={26} color="#000" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Text style={{fontFamily: 'Poppins-Bold'}}>{item.type}</Text>
-          <View style={{flexDirection: 'row', gap: 4}}>
-            <Text style={{fontFamily: 'Poppins-Light'}}>{item.location}</Text>
-            <Text style={{fontFamily: 'Poppins-Light'}}>{dateString}</Text>
-            <Text style={{fontFamily: 'Poppins-Light'}}>{timeString}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
+      <PostItem
+        item={item}
+        onPress={() => navigation.navigate('Listings', {itemId: item._id})}
+        isFound={true}
+      />
     );
   };
 
@@ -169,38 +129,11 @@ const HomeScreen = () => {
 
   const renderRow = ({item}) => {
     return (
-      <TouchableOpacity
-        onPress={() => navigation.navigate('DetailsPage', {id: item.id})}>
-        <View style={styles.listing}>
-          <Image source={{uri: item.medium_url}} style={styles.image} />
-          <TouchableOpacity style={{position: 'absolute', right: 30, top: 30}}>
-            <EvilIcons name={'heart'} size={30} color="#000" />
-          </TouchableOpacity>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={{fontSize: 16, fontFamily: 'Poppins-Bold'}}>
-              {item.name}
-            </Text>
-
-            <View style={{flexDirection: 'row', gap: 4}}>
-              <TouchableOpacity>
-                <EvilIcons name={'comment'} size={26} color="#000" />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <SahreIcon name={'share'} size={26} color="#000" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Text style={{fontFamily: 'Poppins-Bold'}}>{item.room_type}</Text>
-          <View style={{flexDirection: 'row', gap: 4}}>
-            <Text style={{fontFamily: 'Poppins-Light'}}>
-              {item.smart_location}
-            </Text>
-            <Text style={{fontFamily: 'Poppins-Light'}}>
-              {item.first_review}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
+      <PostItem
+        item={item}
+        onPress={() => navigation.navigate('DetailsPage', {id: item.id})}
+        isFound={false}
+      />
     );
   };
 
@@ -221,101 +154,57 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{
-          alignItems: 'center',
-          gap: 20,
-          paddingHorizontal: 16,
-          paddingBottom: 5,
-          paddingTop: 7,
-        }}>
-        {categories.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            style={
-              activeIndex === index
-                ? styles.activeCategoryBtn
-                : styles.inactiveCategoryBtn
-            }
-            onPress={() => handleCategoryPress(index)}>
-            <Text
-              style={
-                activeIndex === index
-                  ? styles.categoryTextActive
-                  : styles.categoryText
-              }>
-              {item.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView> */}
-{/* 
-      {selectedCategoryMessage === 'All Posts' && (
-        <FlatList
-          renderItem={renderRow}
-          data={posts}
-          keyExtractor={item => item.id.toString()}
-          ref={flatListRef => {
-            listRef.current = flatListRef;
+      <TabsProvider>
+        <Tabs
+          style={{
+            width: 400,
+            marginTop: 2,
+            backgroundColor: '#fff',
+            paddingLeft: 15,
           }}
-        />
-      )}
-
-      {selectedCategoryMessage === 'Found Posts' && (
-        <FlatList
-          renderItem={renderFoundPostRow}
-          data={foundPosts}
-          keyExtractor={item => item._id.toString()}
-          ref={flatListRef => {
-            listRef.current = flatListRef;
-          }}
-        />
-      )} */}
-       <TabsProvider>
-  <Tabs style={{width: 400, marginTop: 2, backgroundColor:'#fff'}}  mode="scrollable" showLeadingSpace={false}  disableSwipe={false}  theme={{ colors: { primary: 'blue' } }}>
-  <TabScreen label="All">
-      {/* Component for Found items */}
-      <View style={styles.tabContent}>
-        <FlatList
-          renderItem={renderRow}
-          data={posts}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      </View>
-    </TabScreen>
-    <TabScreen label="Lost">
-      {/* Component for Lost items */}
-      <View style={styles.tabContent}>
-        {/* <FlatList
+          mode="scrollable"
+          showLeadingSpace={false}
+          disableSwipe={false}
+          theme={{colors: {primary: 'blue'}}}>
+          <TabScreen label="All">
+            {/* Component for Found items */}
+            <View style={styles.tabContent}>
+              <FlatList
+                renderItem={renderFoundPostRow}
+                data={foundPosts}
+                keyExtractor={item => item._id.toString()}
+              />
+            </View>
+          </TabScreen>
+          <TabScreen label="Lost">
+            {/* Component for Lost items */}
+            <View style={styles.tabContent}>
+              {/* <FlatList
           renderItem={renderLostPostRow}
           data={posts}
           keyExtractor={(item) => item.id.toString()}
         /> */}
-      </View>
-    </TabScreen>
-    <TabScreen label="Found">
-      {/* Component for Found items */}
-      <View style={styles.tabContent}>
-        <FlatList
-          renderItem={renderFoundPostRow}
-          data={foundPosts}
-          keyExtractor={(item) => item._id.toString()}
-        />
-      </View>
-    </TabScreen>
- 
-    <TabScreen label="NearBy">
-      {/* Component for Nearby items */}
-      <View style={styles.tabContent}>
-        <Text>Nearby items content goes here</Text>
-      </View>
-    </TabScreen>
-  </Tabs>
-</TabsProvider>
-      
+            </View>
+          </TabScreen>
+          <TabScreen label="Found">
+            {/* Component for Found items */}
+            <View style={styles.tabContent}>
+              <FlatList
+                renderItem={renderFoundPostRow}
+                data={foundPosts}
+                keyExtractor={item => item._id.toString()}
+              />
+            </View>
+          </TabScreen>
+
+          <TabScreen label="NearBy">
+            {/* Component for Nearby items */}
+            <View style={styles.tabContent}>
+              <Text>Nearby items content goes here</Text>
+            </View>
+          </TabScreen>
+        </Tabs>
+      </TabsProvider>
     </View>
   );
 };
