@@ -166,9 +166,9 @@ export const Categories = [
       'Other Instruments',
     ],
   },{
-    name:'no found',
+    name:'Other',
     subcategories: [
-      'other'
+      'Other'
     ],
   }
 ];

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,16 +9,13 @@ import {
   Alert,
   PermissionsAndroid,
 } from 'react-native';
-import MapView, {Circle, Marker, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import GetLocation from 'react-native-get-location';
 
 const Chat = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
-  const [drawingMode, setDrawingMode] = useState(false);
-  const [circleCenter, setCircleCenter] = useState(null);
-  const [circleRadius, setCircleRadius] = useState(500);
 
   useEffect(() => {
     requestLocationPermission();
@@ -48,7 +45,7 @@ const Chat = () => {
         }
       } else if (Platform.OS === 'ios') {
         await GetLocation.requestPermissions({
-          ios: {enableHighAccuracy: true},
+          ios: { enableHighAccuracy: true },
         });
         setPermissionGranted(true); // Assuming permission is granted on iOS
         // Permission granted, now get the current location
@@ -57,7 +54,6 @@ const Chat = () => {
     } catch (error) {
       console.error('Error requesting location permission:', error);
     }
-    setDrawingMode(true);
   };
 
   const getCurrentLocation = async () => {
@@ -78,61 +74,15 @@ const Chat = () => {
         latitude: location.latitude,
         longitude: location.longitude,
       });
+      setIsMapVisible(true);
     } catch (error) {
       console.warn('Error getting current location:', error);
     }
   };
 
-  const handleMapPress = event => {
-    if (!permissionGranted) {
-      Alert.alert(
-        'Location Required',
-        'Please grant location permission to use this feature.',
-      );
-      return;
-    }
-
-    if (drawingMode) {
-      const {coordinate} = event.nativeEvent;
-      setCircleCenter(coordinate);
-    }
-  };
-
-  const handleMapLongPress = event => {
-    if (!permissionGranted || !drawingMode) {
-      return;
-    }
-
-    const {coordinate} = event.nativeEvent;
-    setCircleCenter(coordinate);
-  };
-
-  const enableDrawingMode = () => {
-    setDrawingMode(true);
-  };
-
-  const disableDrawingMode = () => {
-    setDrawingMode(false);
-  };
-
-  const openMap = () => {
-    setIsMapVisible(true);
-  };
-
-  const closeMap = () => {
-    setIsMapVisible(false);
-  };
-
-  const initialRegion = {
-    latitude: 32.18825, // Default latitude
-    longitude: 74.1324, // Default longitude
-    latitudeDelta: 1.015,
-    longitudeDelta: 1.0121,
-  };
-
   return (
-    <View>
-      <TouchableOpacity onPress={openMap}>
+    <View style={styles.container}>
+      <TouchableOpacity onPress={getCurrentLocation}>
         <View style={styles.field}>
           <Text>Location</Text>
         </View>
@@ -143,51 +93,24 @@ const Chat = () => {
           <MapView
             provider={PROVIDER_GOOGLE}
             style={styles.map}
-            region={{
+            initialRegion={{
               latitude: selectedLocation ? selectedLocation.latitude : 32.18825,
-              longitude: selectedLocation
-                ? selectedLocation.longitude
-                : 74.1324,
-              latitudeDelta: 1.015,
-              longitudeDelta: 1.0121,
+              longitude: selectedLocation ? selectedLocation.longitude : 74.1324,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
             }}
-            enabled={permissionGranted}
-            onPress={handleMapPress}
-            onLongPress={handleMapLongPress}>
+          >
             {selectedLocation && (
               <Marker
                 coordinate={selectedLocation}
                 title="Selected Location"
                 draggable
-                onDragEnd={e => handleMarkerDrag(e.nativeEvent.coordinate)}
-              />
-            )}
-            {circleCenter && (
-              <Circle
-                center={circleCenter}
-                radius={circleRadius}
-                strokeColor="#2a2b2b"
-                fillColor="#b2ebe9"
+                onDragEnd={(e) => setSelectedLocation(e.nativeEvent.coordinate)}
               />
             )}
           </MapView>
-          <TouchableOpacity onPress={closeMap} style={styles.closeButton}>
+          <TouchableOpacity onPress={() => setIsMapVisible(false)} style={styles.closeButton}>
             <Text>Close Map</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={getCurrentLocation}
-            style={styles.currentLocationButton}>
-            <Text>Current Location</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={enableDrawingMode}>
-            <View style={styles.button}>
-              <Text>Enable Drawing</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={disableDrawingMode}>
-            <View style={styles.button}>
-              <Text>Disable Drawing</Text>
-            </View>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -215,13 +138,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 20,
     right: 20,
-    backgroundColor: 'white',
-    padding: 10,
-  },
-  currentLocationButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
     backgroundColor: 'white',
     padding: 10,
   },
