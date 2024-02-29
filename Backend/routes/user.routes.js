@@ -5,6 +5,7 @@ const {
   signin,
   getUserData,
   forgetpassword,
+  updateProfile,
 } = require("../controllers/user.controllers");
 const {
   validateUserSignUp,
@@ -64,45 +65,11 @@ usersRouter.get("/getUserData", postauthenticate, getUserData);
 
 usersRouter.post("/forgetpassword", forgetpassword);
 
-// usersRouter.post(
-//   "/upload-Profile",
-//   authenticate,
-//   uploads.single("profile"),
-//   async (req, res) => {
-//     const { user } = req;
-
-//     if (!user) {
-//       console.log("Unauthorized access");
-//       res.status(401).json({
-//         success: false,
-//         message: "Unauthorized access",
-//       });
-//       return;
-//     }
-
-//     try {
-//       const profileBuffer = req.file.buffer;
-//       const { width, height } = await sharp(profileBuffer).metadata();
-
-//       const avatar = await sharp(profileBuffer)
-//         .resize(Math.round(width * 0.5), Math.round(height * 0.5))
-//         .toBuffer();
-
-//       await User.findByIdAndUpdate(user._id, { avatar: avatar });
-
-//       res.status(200).json({
-//         success: true,
-//         message: "Picture has been uploaded",
-//         userId: req.userId,
-//       });
-//     } catch (error) {
-//       console.error("Error in image uploading", error);
-//       res.status(500).json({
-//         success: false,
-//         message: "Server Error",
-//       });
-//     }
-//   }
-// );
+usersRouter.patch(
+  "/updateprofile",
+  postauthenticate,
+  upload.single("avatar"),
+  updateProfile
+);
 
 module.exports = usersRouter;

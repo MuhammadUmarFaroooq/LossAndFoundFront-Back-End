@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Posts = require("../modals/post");
+const users = require("../modals/users");
 
 const postUpload = async (req, res) => {
   try {
@@ -92,4 +93,57 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-module.exports = { postUpload, getAllPosts };
+const toggleFavorite = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    // 1. Find the post by ID
+    const post = await Posts.findById(postId);
+
+    if (!post) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
+    }
+
+    // 2. Toggle the isFavorite property
+    post.isFavorite = !post.isFavorite;
+
+    // 3. Save the updated post
+    const updatedPost = await post.save();
+
+    // 4. Update user's favorites list correctly using MongoDB update operators
+
+    const updatedUser = await users.findByIdAndUpdate(
+      req.user._id, // Update the current user
+      {
+        $set: {
+          favorites: updatedPost.isFavorite
+            ? [...req.user.favorites, updatedPost._id] // Add post ID if true
+            : req.user.favorites.filter(
+                (favPostId) =>
+                  favPostId.toString() !== updatedPost._id.toString()
+              ), // Remove post ID if false
+        },
+      },
+      { new: true } // Ensure you get the updated info
+    );
+
+    // 5. Fetch the updated user document (optional)
+
+    // 6. Send the response with correct information
+    res.status(200).json({
+      success: true,
+      message: `Post ${
+        updatedPost.isFavorite ? "added to" : "removed from"
+      } favorites`,
+      post: updatedPost,
+      user: updatedUser, // Include the updated user object if needed
+    });
+  } catch (error) {
+    console.error("Error toggling favorite status:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+module.exports = { postUpload, getAllPosts, toggleFavorite };

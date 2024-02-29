@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
     },
+    favorites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
   },
   {
     collection: "Users",
@@ -73,7 +79,7 @@ userSchema.methods.comparePassword = async function (password) {
     const result = await bcrypt.compare(password, this.password);
     return result;
   } catch (error) {
-    console.log("Eror while comparing", error.message);
+    console.log("Error while comparing", error.message);
   }
 };
 

@@ -64,6 +64,10 @@ const postSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isFavorite: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     collection: "Posts",

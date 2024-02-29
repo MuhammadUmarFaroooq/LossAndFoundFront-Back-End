@@ -1,6 +1,10 @@
 const express = require("express");
 const multer = require("multer");
-const { postUpload, getAllPosts } = require("../controllers/post.controllers");
+const {
+  postUpload,
+  getAllPosts,
+  toggleFavorite,
+} = require("../controllers/post.controllers");
 
 const Router = express.Router;
 const postRouter = Router();
@@ -47,5 +51,7 @@ postRouter.post(
 );
 
 postRouter.get("/getAllPosts", postauthenticate, getAllPosts);
+
+postRouter.post("/toggleFavorite/:postId", postauthenticate, toggleFavorite);
 
 module.exports = postRouter;

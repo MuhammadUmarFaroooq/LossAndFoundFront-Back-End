@@ -103,6 +103,7 @@ const signin = async (req, res) => {
 const getUserData = async (req, res) => {
   try {
     const user = req.user;
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -120,7 +121,24 @@ const getUserData = async (req, res) => {
       });
     }
 
-    res.json({ status: "ok", data: userData });
+    // Fetch the favorites separately and populate them
+    const populatedFavorites = await Users.populate(userData, {
+      path: "favorites",
+    });
+
+    res.json({
+      status: "ok",
+      data: {
+        fullName: userData.fullName,
+        email: userData.email,
+        phone: userData.phone,
+        country: userData.country,
+        province: userData.province,
+        city: userData.city,
+        avatar: userData.avatar,
+        favorites: populatedFavorites.favorites, // Assuming favorites is an array of post objects
+      },
+    });
   } catch (error) {
     console.log("Error getting user data:", error);
     return res.status(500).json({
@@ -189,4 +207,57 @@ const forgetpassword = async (req, res) => {
   }
 };
 
-module.exports = { signup, signin, getUserData, forgetpassword };
+const updateProfile = async (req, res) => {
+  try {
+    const { fullName, phone, country, province, city } = req.body;
+
+    // Check if the user exists
+    const user = await Users.findById(req.user._id);
+    console.log("update in", user);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // Update user profile fields
+    user.fullName = fullName;
+    user.phone = phone;
+    user.country = country;
+    user.province = province;
+    user.city = city;
+
+    // Update avatar if a new file is provided
+    if (req.file) {
+      const avatarFileName = req.file.filename;
+      user.avatar = avatarFileName;
+    }
+
+    await Users.updateOne({ _id: req.user._id }, user);
+    console.log("Updated User Profile:", user);
+
+    res.status(200).json({
+      status: "ok",
+      message: "Profile updated successfully.",
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        country: user.country,
+        province: user.province,
+        city: user.city,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = { signup, signin, getUserData, forgetpassword, updateProfile };
