@@ -140,8 +140,6 @@ const DetailsPage = ({route}) => {
   return (
     <View style={styles.container}>
       <ScrollView style={{flex: 1}}>
-<<<<<<< HEAD
-=======
         {postDetail.images && postDetail.images.length > 0 && (
           <Image
             source={{
@@ -152,7 +150,6 @@ const DetailsPage = ({route}) => {
           />
         )}
 
->>>>>>> 6139d0e99b52168e0befdddce34611fcacb5690e
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{postDetail.name}</Text>
           <Text style={styles.location}>{postDetail.category}</Text>
