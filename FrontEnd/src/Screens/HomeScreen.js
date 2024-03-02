@@ -95,7 +95,7 @@ const HomeScreen = () => {
     return (
       <PostItem
         item={item}
-        onPress={() => navigation.navigate('DetailsPage', {id: item.id})}
+        onPress={itemId => navigation.navigate('DetailsPage', {itemId})}
         isFound={false}
       />
     );

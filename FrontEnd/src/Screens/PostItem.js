@@ -19,7 +19,7 @@ const PostItem = ({item, onPress, isFound}) => {
   const timeString = formattedDate.toLocaleTimeString();
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={() => onPress(item._id)}>
       <View style={styles.listing}>
         <Image
           source={{uri: `http://${IP}:8000/Images/uploads/${item.images[0]}`}}

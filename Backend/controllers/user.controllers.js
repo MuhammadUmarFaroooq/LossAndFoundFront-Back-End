@@ -129,6 +129,7 @@ const getUserData = async (req, res) => {
     res.json({
       status: "ok",
       data: {
+        id: userData._id,
         fullName: userData.fullName,
         email: userData.email,
         phone: userData.phone,
@@ -141,6 +142,46 @@ const getUserData = async (req, res) => {
     });
   } catch (error) {
     console.log("Error getting user data:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getUserById = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const userData = await Users.findById(userId);
+
+    if (!userData) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // Fetch the favorites separately and populate them
+    const populatedFavorites = await Users.populate(userData, {
+      path: "favorites",
+    });
+
+    res.json({
+      status: "ok",
+      data: {
+        fullName: userData.fullName,
+        email: userData.email,
+        phone: userData.phone,
+        country: userData.country,
+        province: userData.province,
+        city: userData.city,
+        avatar: userData.avatar,
+        favorites: populatedFavorites.favorites, // Assuming favorites is an array of post objects
+      },
+    });
+  } catch (error) {
+    console.log("Error getting user data by ID:", error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -260,4 +301,11 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { signup, signin, getUserData, forgetpassword, updateProfile };
+module.exports = {
+  signup,
+  signin,
+  getUserData,
+  getUserById,
+  forgetpassword,
+  updateProfile,
+};
