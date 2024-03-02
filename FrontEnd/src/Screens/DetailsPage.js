@@ -60,12 +60,6 @@ const DetailsPage = ({route}) => {
   return (
     <View style={styles.container}>
       <ScrollView style={{flex: 1}}>
-        <Image
-          source={{uri: listing.xl_picture_url}}
-          style={styles.image}
-          resizeMode="cover"
-        />
-
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{listing.name}</Text>
           <Text style={styles.location}>

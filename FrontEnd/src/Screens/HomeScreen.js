@@ -60,42 +60,6 @@ const HomeScreen = () => {
 
   const handleSearch = query => setSearchQuery(query);
 
-  const handleCategoryPress = async index => {
-    let categoryMessage = '';
-
-    switch (categories[index].name) {
-      case 'All':
-        categoryMessage = 'All Posts';
-
-        break;
-      case 'Lost':
-        categoryMessage = 'Lost Posts';
-        setPosts(listingsData.filter(item => item.category === 'Lost'));
-        break;
-      case 'Found':
-        categoryMessage = 'Found Posts';
-        await getPostData();
-        break;
-      case 'NearBy':
-        categoryMessage = 'Nearby Posts';
-        setPosts(listingsData.filter(item => item.category === 'NearBy'));
-        break;
-      default:
-        break;
-    }
-
-    console.log(`Showing ${categoryMessage}`);
-
-    scrollViewRef.current.scrollTo({
-      x: index * 50,
-      y: 0,
-      animated: true,
-    });
-
-    setSelectedCategoryMessage(categoryMessage);
-    setActiveIndex(index);
-  };
-
   const getPostData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -115,7 +79,7 @@ const HomeScreen = () => {
     return (
       <PostItem
         item={item}
-        onPress={() => navigation.navigate('Listings', {itemId: item._id})}
+        onPress={() => navigation.navigate('DetailsPage', {id: item._id})}
         isFound={true}
       />
     );

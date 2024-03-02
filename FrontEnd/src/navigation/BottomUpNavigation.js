@@ -1,5 +1,11 @@
 import React from 'react';
-import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  FlatList,
+} from 'react-native';
 
 import {CommonActions} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -12,9 +18,9 @@ import {COLORS} from '../constants/theme';
 import Profile from '../Screens/Profile';
 import {Categories} from '../constants/AppDetail';
 import Chat from '../Screens/Chat';
+import FavScreen from '../Screens/FavScreen';
 
 const Tab = createBottomTabNavigator();
-const MusicRoute = () => <Text>Music</Text>;
 
 const AlbumsRoute = () => <Text>Albums</Text>;
 
@@ -121,7 +127,7 @@ export default function BottomUpNavigation({navigation}) {
       />
       <Tab.Screen
         name="heart"
-        component={MusicRoute}
+        component={FavScreen}
         options={{
           tabBarIcon: ({color, size}) => {
             return <Icon2 name="hearto" size={size} color={color} />;
@@ -183,7 +189,6 @@ export default function BottomUpNavigation({navigation}) {
           ),
         })}
       />
-     
     </Tab.Navigator>
   );
 }
