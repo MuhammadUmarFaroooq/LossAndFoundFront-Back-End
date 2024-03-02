@@ -1,4 +1,4 @@
-import React, {useLayoutEffect} from 'react';
+import React, {useLayoutEffect, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,24 +8,27 @@ import {
   TouchableOpacity,
   Share,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import listingsData from '../assets/data/airbnb-listings.json';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import {IP} from '../constants/theme';
 
 const {width} = Dimensions.get('window');
-const IMG_HEIGHT = 300;
+const IMG_HEIGHT = 280;
 
 const DetailsPage = ({route}) => {
-  const {id} = route.params;
-  const listing = listingsData.find(item => item.id === id);
+  const {itemId} = route.params;
   const navigation = useNavigation();
+  const [postDetail, setPostDetail] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const shareListing = async () => {
     try {
       await Share.share({
-        title: listing.name,
-        url: listing.listing_url,
+        message: postDetail.name,
       });
     } catch (err) {
       console.log(err);
@@ -57,49 +60,134 @@ const DetailsPage = ({route}) => {
     });
   }, [navigation, shareListing]);
 
+  useEffect(() => {
+    getPostData();
+  }, [itemId]);
+
+  const getPostData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(
+        `http://${IP}:8000/posts/getPostById/${itemId}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        },
+      );
+
+      const user = response.data.post.user;
+
+      if (!user) {
+        console.error('User data not available for the post.');
+        setIsLoading(false);
+        // Handle this case, e.g., set a default user object
+        // or skip processing user-related information
+        return;
+      }
+
+      const userId = user;
+
+      const [postData, userResponse] = await Promise.all([
+        response.data.post,
+        axios.get(`http://${IP}:8000/users/getUserById/${userId}`, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }),
+      ]);
+
+      const postDetailWithUser = {
+        ...postData,
+        user: {
+          fullname: userResponse.data.data.fullName,
+          avatar: userResponse.data.data.avatar,
+        },
+      };
+
+      setPostDetail(postDetailWithUser);
+    } catch (error) {
+      console.error('Error fetching post data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
+  if (!postDetail) {
+    return (
+      <View style={styles.container}>
+        <Text>User not found!</Text>
+      </View>
+    );
+  }
+
+  const datelost = new Date(postDetail.dateOfItem);
+  const dateloststring = datelost.toLocaleDateString();
+  const timeloststring = datelost.toLocaleTimeString();
+
+  const PostedDate = new Date(postDetail.datePosted);
+  const dateString = PostedDate.toLocaleDateString();
+  const timeString = PostedDate.toLocaleTimeString();
+
   return (
     <View style={styles.container}>
       <ScrollView style={{flex: 1}}>
-        <Image
-          source={{uri: listing.xl_picture_url}}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        {postDetail.images && postDetail.images.length > 0 && (
+          <Image
+            source={{
+              uri: `http://${IP}:8000/Images/uploads/${postDetail.images[0]}`,
+            }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        )}
 
         <View style={styles.infoContainer}>
-          <Text style={styles.name}>{listing.name}</Text>
-          <Text style={styles.location}>
-            {listing.room_type} in {listing.smart_location}
-          </Text>
+          <Text style={styles.name}>{postDetail.name}</Text>
+          <Text style={styles.location}>{postDetail.category}</Text>
           <Text style={styles.rooms}>
-            {listing.guests_included} guests · {listing.bedrooms} bedrooms ·{' '}
-            {listing.beds} bed · {listing.bathrooms} bathrooms
+            Color: {postDetail.color} · Brand: {postDetail.brand} · Type:{' '}
+            {postDetail.type}
           </Text>
-          <View style={{flexDirection: 'row', gap: 4}}>
-            <Ionicons name="star" size={16} />
+          <View style={{flexDirection: 'column', gap: 4}}>
             <Text style={styles.ratings}>
-              {listing.review_scores_rating / 20} · {listing.number_of_reviews}{' '}
-              reviews
+              Location: {postDetail.type} at {postDetail.location}
+            </Text>
+            <Text style={styles.ratings}>
+              {postDetail.type} Time and Date : {dateloststring}{' '}
+              {timeloststring}
             </Text>
           </View>
           <View style={styles.divider} />
 
           <View style={styles.hostView}>
             <Image
-              source={{uri: listing.host_picture_url}}
+              source={{
+                uri: `http://${IP}:8000/Images/uploads/${postDetail.user.avatar}`,
+              }}
               style={styles.host}
             />
             <View>
               <Text style={{fontWeight: '500', fontSize: 16}}>
-                Hosted by {listing.host_name}
+                Posted by {postDetail.user.fullname}
               </Text>
-              <Text>Host since {listing.host_since}</Text>
+              <Text>
+                {dateString} {timeString}
+              </Text>
             </View>
           </View>
 
           <View style={styles.divider} />
 
-          <Text style={styles.description}>{listing.description}</Text>
+          <Text style={styles.description}>{postDetail.description}</Text>
         </View>
       </ScrollView>
 
@@ -111,8 +199,7 @@ const DetailsPage = ({route}) => {
             alignItems: 'center',
           }}>
           <TouchableOpacity style={styles.footerText}>
-            <Text style={styles.footerPrice}>€{listing.price}</Text>
-            <Text>night</Text>
+            <Text style={styles.footerPrice}>{postDetail.category}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.reserveButton}>
             <Text style={styles.reserveButtonText}>Claim</Text>
@@ -152,6 +239,7 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     fontFamily: 'mon',
   },
+
   ratings: {
     fontSize: 16,
     fontFamily: 'mon-sb',
@@ -219,13 +307,18 @@ const styles = StyleSheet.create({
   reserveButton: {
     backgroundColor: '#4CAF50',
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     borderRadius: 8,
   },
   reserveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

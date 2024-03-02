@@ -93,6 +93,73 @@ const getAllPosts = async (req, res) => {
   }
 };
 
+const getPostById = async (req, res) => {
+  try {
+    const user = req.user;
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated.",
+      });
+    }
+
+    const postId = req.params.id;
+
+    // Fetch the post by id
+    const post = await Posts.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      post: post,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const getPostsByUserId = async (req, res) => {
+  try {
+    const user = req.user;
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated.",
+      });
+    }
+
+    const userId = req.params.userId;
+
+    // Fetch posts by user ID
+    const posts = await Posts.find({ user: userId });
+
+    res.status(200).json({
+      success: true,
+      posts: posts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
 const toggleFavorite = async (req, res) => {
   const { postId } = req.params;
 
@@ -146,4 +213,10 @@ const toggleFavorite = async (req, res) => {
   }
 };
 
-module.exports = { postUpload, getAllPosts, toggleFavorite };
+module.exports = {
+  postUpload,
+  getAllPosts,
+  toggleFavorite,
+  getPostById,
+  getPostsByUserId,
+};

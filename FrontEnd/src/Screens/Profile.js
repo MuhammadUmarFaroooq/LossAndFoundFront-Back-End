@@ -1,19 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity ,FlatList} from 'react-native';
-import { Card, Title, Paragraph } from 'react-native-paper';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { Tabs, TabScreen, TabsProvider, useTabIndex, useTabNavigation } from 'react-native-paper-tabs';
-import { COLORS, IP } from '../constants/theme';
+import {Tabs, TabScreen, TabsProvider} from 'react-native-paper-tabs';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { backgroundColors } from '../constants/AppDetail';
+import {useNavigation} from '@react-navigation/native';
 
-const Profile = ({ navigation}) => {
+import {COLORS, IP} from '../constants/theme';
+
+const PostThumbnail = ({post, navigation}) => {
+  return (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('DetailsPage', {itemId: post._id})}>
+      <Image
+        source={{
+          uri: `http://${IP}:8000/Images/uploads/${post.images[0]}`,
+        }}
+        style={styles.postThumbnail}
+      />
+    </TouchableOpacity>
+  );
+};
+
+const Profile = ({navigation}) => {
   const [userData, setUserData] = useState(null);
   const [foundPosts, setFoundPosts] = useState([]);
-  
-  console.log(foundPosts);
+  const [numColumns, setNumColumns] = useState(3);
+
   async function getData() {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -23,9 +43,12 @@ const Profile = ({ navigation}) => {
         },
       });
 
-      console.log('User data:', response.data);
+      const id = response.data.data.id;
 
       setUserData(response.data.data);
+
+      // Call the function to get posts for the user
+      getPostsByUserId(id);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
@@ -33,47 +56,28 @@ const Profile = ({ navigation}) => {
 
   useEffect(() => {
     getData();
-    getPostData()
   }, []);
-  const getPostData = async () => {
+
+  // Function to get posts for a specific user by userId
+  const getPostsByUserId = async userId => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`http://${IP}:8000/posts/getAllPosts`, {
-        headers: {
-          Authorization: `${token}`,
+      const response = await axios.get(
+        `http://${IP}:8000/posts/getPostsByUserId/${userId}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
         },
-      });
+      );
 
       setFoundPosts(response.data.posts);
     } catch (error) {
-      console.error('Error fetching post data:', error);
+      console.error('Error fetching user posts:', error);
     }
   };
 
-  const renderFoundPostRow = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('Listings', { itemId: item._id })}
-    >
-      <View style={styles.listing}>
-        {/* Render the image */}
-        <Image
-            source={{
-              uri: `http://${IP}:8000/Images/uploads/${item.images[0]}`,
-            }} style={styles.image} />
-
-
-        {/* Render the item details */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: 16, fontFamily: 'Poppins-Bold' }}>
-            {item.name}
-          </Text>
-          
-
-          </View>
-        </View>
-
-    </TouchableOpacity>
-  );
+  const renderPostThumbnail = ({item}) => <PostThumbnail post={item} />;
 
   return (
     <View style={styles.container}>
@@ -116,43 +120,48 @@ const Profile = ({ navigation}) => {
             </View>
 
             {/* Edit profile button */}
-            <TouchableOpacity style={styles.editButton} onPress={()=>{
-              navigation.navigate('EditProfile', { userData: userData })
-            }}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => {
+                navigation.navigate('EditProfile', {userData: userData});
+              }}>
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
 
             {/* Tab navigation */}
             <TabsProvider>
+              <Tabs style={{width: 350, marginTop: 2}}>
+                <TabScreen label="Lost">
+                  {/* Component for Lost items */}
+                  <View style={styles.tabContent}>
+                    <Text>Lost items content goes here</Text>
+                  </View>
+                </TabScreen>
+                <TabScreen label="Found">
+                  {/* Component for Found items */}
+                  <View style={styles.container}>
+                    {/* Other profile content */}
 
-            <Tabs style={{ width:350,marginTop:2 }}>
-              <TabScreen label="Lost">
-                {/* Component for Lost items */}
-                <View style={styles.tabContent}>
-                  <Text>Lost items content goes here</Text>
-                </View>
-              </TabScreen>
-              <TabScreen label="Found">
-                {/* Component for Found items */}
-                <View style={styles.container}>
-      {/* Other profile content */}
-
-      {/* FlatList for Found posts */}
-      <FlatList
-        renderItem={renderFoundPostRow}
-        data={foundPosts}
-        keyExtractor={(item) => item._id.toString()}
-        numColumns={2}
-      />
-    </View>
-              </TabScreen>
-              <TabScreen label="Claimed">
-                {/* Component for Claimed items */}
-                <View style={styles.tabContent}>
-                  <Text>Claimed items content goes here</Text>
-                </View>
-              </TabScreen>
-            </Tabs>
+                    {/* FlatList for Found posts */}
+                    <FlatList
+                      key={`posts-${foundPosts.length}-${numColumns}`}
+                      renderItem={({item}) => (
+                        <PostThumbnail post={item} navigation={navigation} />
+                      )}
+                      data={foundPosts}
+                      keyExtractor={item => item._id.toString()}
+                      numColumns={3}
+                      contentContainerStyle={styles.postList}
+                    />
+                  </View>
+                </TabScreen>
+                <TabScreen label="Claimed">
+                  {/* Component for Claimed items */}
+                  <View style={styles.tabContent}>
+                    <Text>Claimed items content goes here</Text>
+                  </View>
+                </TabScreen>
+              </Tabs>
             </TabsProvider>
           </View>
         </View>
@@ -240,10 +249,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  tabs: {
-    height: 50, // Adjust the height of the tab navigation
-    width: '100%', // Optional: Adjust the width of the tab navigation
-    backgroundColors:COLORS.blue
+  postContainer: {
+    width: '58%',
+    aspectRatio: 1,
+    borderRadius: 10,
+    overflow: 'hidden',
+    margin: 5,
+    position: 'relative',
+  },
+  postImage: {
+    width: '100%',
+    height: '100%',
+  },
+  postList: {
+    marginVertical: 20,
+  },
+  postThumbnail: {
+    width: '50%',
+    aspectRatio: 1, // Square aspect ratio
+    borderRadius: 10,
+    overflow: 'hidden',
+    margin: 5,
+    height: 200,
   },
 });
 

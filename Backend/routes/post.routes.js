@@ -4,6 +4,8 @@ const {
   postUpload,
   getAllPosts,
   toggleFavorite,
+  getPostById,
+  getPostsByUserId,
 } = require("../controllers/post.controllers");
 
 const Router = express.Router;
@@ -51,6 +53,10 @@ postRouter.post(
 );
 
 postRouter.get("/getAllPosts", postauthenticate, getAllPosts);
+
+postRouter.get("/getPostById/:id", postauthenticate, getPostById);
+
+postRouter.get("/getPostsByUserId/:userId", postauthenticate, getPostsByUserId);
 
 postRouter.post("/toggleFavorite/:postId", postauthenticate, toggleFavorite);
 

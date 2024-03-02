@@ -6,6 +6,7 @@ const {
   getUserData,
   forgetpassword,
   updateProfile,
+  getUserById,
 } = require("../controllers/user.controllers");
 const {
   validateUserSignUp,
@@ -62,6 +63,8 @@ usersRouter.post(
 usersRouter.post("/login", validateUserSignIn, uservalidation, signin);
 
 usersRouter.get("/getUserData", postauthenticate, getUserData);
+
+usersRouter.get("/getUserById/:userId", postauthenticate, getUserById);
 
 usersRouter.post("/forgetpassword", forgetpassword);
 
