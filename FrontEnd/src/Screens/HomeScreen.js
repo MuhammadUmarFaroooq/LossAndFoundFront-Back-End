@@ -36,27 +36,16 @@ const categories = [
   {name: 'NearBy', message: 'Nearby Posts'},
 ];
 
-const HomeScreen = () => {
-  const scrollViewRef = useRef(null);
-  const listRef = useRef(null);
+const HomeScreen = ({route}) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeIndex, setActiveIndex] = useState(0);
   const [posts, setPosts] = useState([]);
-  const [selectedCategoryMessage, setSelectedCategoryMessage] =
-    useState('All Posts');
   const [foundPosts, setFoundPosts] = useState([]);
   const items = useMemo(() => listingsData, []);
   const {likedImages, addLikedImage, removeLikedImage} = useLikeStore(); // Use the Zustand store
 
-  const handleHeartPress = image => {
-    console.log('hi');
-  };
   useEffect(() => {
-    // Set "All" posts by default
-    setPosts(listingsData.filter(item => item.category === 'Lost'));
-    setPosts(listingsData);
     getPostData();
-  }, []);
+  }, [route.params?.refreshPosts]);
 
   const handleSearch = query => setSearchQuery(query);
 
@@ -75,11 +64,26 @@ const HomeScreen = () => {
     }
   };
 
+  const fetchLatestPosts = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(`http://${IP}:8000/posts/getAllPosts`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+
+      setFoundPosts(response.data.posts);
+    } catch (error) {
+      console.error('Error fetching post data:', error);
+    }
+  };
+
   const renderFoundPostRow = ({item}) => {
     return (
       <PostItem
         item={item}
-        onPress={() => navigation.navigate('DetailsPage', {id: item._id})}
+        onPress={() => navigation.navigate('DetailsPage', {itemId: item._id})}
         isFound={true}
       />
     );
@@ -90,16 +94,6 @@ const HomeScreen = () => {
   };
 
   const navigation = useNavigation();
-
-  const renderRow = ({item}) => {
-    return (
-      <PostItem
-        item={item}
-        onPress={itemId => navigation.navigate('DetailsPage', {itemId})}
-        isFound={false}
-      />
-    );
-  };
 
   return (
     <View style={styles.main}>
