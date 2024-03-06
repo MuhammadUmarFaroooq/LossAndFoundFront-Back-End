@@ -22,7 +22,7 @@ const OTPScreen = ({navigation}) => {
   const handleVerifyOTP = () => {
     // Add your logic to verify the OTP here
     console.log('Verifying OTP:', otp);
-    navigation.navigate('ChangePassword');
+    navigation.navigate('ChangePassword',{navigationto:'Login'});
   };
 
   const handleScreenPress = () => {

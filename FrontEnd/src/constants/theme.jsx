@@ -25,7 +25,7 @@ export const SIZES = {
   width,
   height,
 };
-export const IP = '10.211.0.36';
+export const IP = '10.211.0.49';
 
 export const LINEARCOLOR = [
   'hsla(270, 4%, 100%, 1)',

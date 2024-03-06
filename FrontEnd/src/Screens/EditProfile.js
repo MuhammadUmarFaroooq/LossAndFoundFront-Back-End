@@ -26,14 +26,11 @@ const MAX_IMAGE_SIZE = 1024 * 1024 * 5;
 
 const EditProfile = ({navigation,route}) => {
 const { userData } = route.params;
-
+console.log(userData.country);
   const [firstName, setFirstName] = useState(userData.fullName);
-  
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // New state
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [selectedState, setSelectedState] = useState(null);
-  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(userData.country);
+  const [selectedState, setSelectedState] = useState(userData.province);
+  const [selectedCity, setSelectedCity] = useState(userData.city);
   const [avatarSource, setAvatarSource] = useState(userData.avatar);
   const [isModalVisible, setModalVisible] = useState(false);
   const [phoneCountryCode, setPhoneCountryCode] = useState();
@@ -107,8 +104,6 @@ const { userData } = route.params;
   const [errors, setErrors] = useState({
     firstName: '',
     phone: '',
-    password: '',
-    confirmPassword: '', // New error state
     selectedCountry: '',
     selectedState: '',
     selectedCity: '',
@@ -119,8 +114,6 @@ const { userData } = route.params;
     if (
       !firstName ||
       !phone ||
-      !password ||
-      !confirmPassword ||
       !selectedCountry ||
       !selectedState ||
       !selectedCity
@@ -128,23 +121,14 @@ const { userData } = route.params;
       setErrors({
         firstName: firstName ? '' : 'Required',
         phone: phone ? '' : 'Required',
-        password: password ? '' : 'Required',
-        confirmPassword: confirmPassword ? '' : 'Required',
         selectedCountry: selectedCountry ? '' : 'Required',
         selectedState: selectedState ? '' : 'Required',
         selectedCity: selectedCity ? '' : 'Required',
-      });
-    } else if (password !== confirmPassword) {
-      setErrors({
-        ...errors,
-        confirmPassword: 'Passwords do not match',
       });
     } else {
       const userData = new FormData();
       userData.append('fullName', firstName);
       userData.append('phone', `${phoneCountryCallingCode}${phone}`);
-      userData.append('password', password);
-      userData.append('confirmPassword', confirmPassword);
       userData.append('country', selectedCountry.name);
       userData.append('province', selectedState.name);
       userData.append('city', selectedCity.name);
@@ -290,47 +274,7 @@ const { userData } = route.params;
           />
         </View>
       </View>
-      <TextInput
-        label={
-          <Text>
-            Password <SuperscriptText>*</SuperscriptText>
-          </Text>
-        }
-        secureTextEntry
-        value={password}
-        onChangeText={text => {
-          setPassword(text);
-          setErrors(prevErrors => ({
-            ...prevErrors,
-            password: text ? '' : 'Required',
-          }));
-        }}
-        style={[styles.input, {borderColor: errors.password ? 'red' : 'gray'}]}
-        error={errors.password !== ''}
-      />
-      {/* Confirm Password */}
-      <TextInput
-        label={
-          <Text>
-            Confirm Password <SuperscriptText>*</SuperscriptText>
-          </Text>
-        }
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={text => {
-          setConfirmPassword(text);
-          setErrors(prevErrors => ({
-            ...prevErrors,
-            confirmPassword: text ? '' : 'Required',
-          }));
-        }}
-        style={[
-          styles.input,
-          {borderColor: errors.confirmPassword ? 'red' : 'gray'},
-        ]}
-        error={errors.confirmPassword !== ''}
-      />
-
+     
       <RNPickerSelect
         placeholder={{label: 'Select a country', value: null}}
         items={Country.getAllCountries().map(country => ({

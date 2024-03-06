@@ -21,6 +21,7 @@ import IconComponent from 'react-native-vector-icons/Fontisto';
 import {COLORS, IP} from '../constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import Location from '../Components/Location';
 
 export default function PostCreation({navigation, route}) {
   const theme = useTheme();
@@ -341,20 +342,8 @@ export default function PostCreation({navigation, route}) {
         />
       )}
 
-      <TextInput
-        label={
-          <Text>
-            Location<SuperscriptText>*</SuperscriptText>
-          </Text>
-        }
-        value={location}
-        onChangeText={text => setLocation(text)}
-        style={{
-          marginBottom: 8,
-          color: titleError ? 'red' : 'black',
-          borderColor: titleError ? 'red' : COLORS.grey,
-        }}
-      />
+      <Location />
+      
       <TextInput
         label={
           <Text>
