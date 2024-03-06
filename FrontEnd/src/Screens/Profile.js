@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {Tabs, TabScreen, TabsProvider} from 'react-native-paper-tabs';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 
 import {COLORS, IP} from '../constants/theme';
 
@@ -68,19 +68,21 @@ const Profile = ({navigation}) => {
     }
   }
 
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={styles.logoutButton}
-        onPress={handleLogout}>
-          <Ionicons name="logout" size={30} color={'black'} />
-      </TouchableOpacity>
+  useFocusEffect(
+    React.useCallback(() => {
+      // This function will be called every time the screen comes into focus
+      getData();
+    }, []),
+  );
 
-      ),
-    });
-    getData();
-  }, []);
+  useEffect(() => {
+    // This effect will run when userData is updated
+    // You can perform any additional actions here
+    // For example, re-fetch posts when userData changes
+    if (userData) {
+      getPostsByUserId(userData.id);
+    }
+  }, [userData]);
 
   // Function to get posts for a specific user by userId
   const getPostsByUserId = async userId => {

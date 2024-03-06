@@ -22,16 +22,22 @@ import axios from 'axios';
 import SuperscriptText from '../Components/SuperscriptText ';
 import CountryPicker from 'react-native-country-picker-modal';
 import SearchableDropdown from 'react-native-searchable-dropdown';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const MAX_IMAGE_SIZE = 1024 * 1024 * 5;
 
-const EditProfile = ({navigation,route}) => {
-const { userData } = route.params;
-console.log(userData.country);
+const EditProfile = ({navigation, route}) => {
+  const {userData} = route.params;
+
   const [firstName, setFirstName] = useState(userData.fullName);
-  const [selectedCountry, setSelectedCountry] = useState(userData.country);
-  const [selectedState, setSelectedState] = useState(userData.province);
-  const [selectedCity, setSelectedCity] = useState(userData.city);
-  const [avatarSource, setAvatarSource] = useState(userData.avatar);
+
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // New state
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedState, setSelectedState] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [avatarSource, setAvatarSource] = useState({
+    uri: `http://${IP}:8000/Images/uploads/${userData.avatar}`,
+  });
   const [isModalVisible, setModalVisible] = useState(false);
   const [phoneCountryCode, setPhoneCountryCode] = useState();
   const [phoneCountryCallingCode, setPhoneCountryCallingCode] = useState();
@@ -109,7 +115,8 @@ console.log(userData.country);
     selectedCity: '',
   });
 
-  const handleSignup = async () => {
+  const handleProfileUpdate = async () => {
+    console.log('Updating profile...');
     // Validate form data
     if (
       !firstName ||
@@ -118,13 +125,7 @@ console.log(userData.country);
       !selectedState ||
       !selectedCity
     ) {
-      setErrors({
-        firstName: firstName ? '' : 'Required',
-        phone: phone ? '' : 'Required',
-        selectedCountry: selectedCountry ? '' : 'Required',
-        selectedState: selectedState ? '' : 'Required',
-        selectedCity: selectedCity ? '' : 'Required',
-      });
+      // Handle errors...
     } else {
       const userData = new FormData();
       userData.append('fullName', firstName);
@@ -133,31 +134,26 @@ console.log(userData.country);
       userData.append('province', selectedState.name);
       userData.append('city', selectedCity.name);
 
-      if (avatarSource) {
-        const imageType = avatarSource.type || 'image/jpeg';
-        userData.append('avatar', {
-          uri: avatarSource.uri,
-          type: imageType,
-          name: `avatar.${imageType.split('/').pop()}`,
-        });
-      }
+      // Append other form data as needed...
 
       try {
-        const res = await axios.post(
-          `http://${IP}:8000/users/signup`,
+        const token = await AsyncStorage.getItem('token');
+        const res = await axios.patch(
+          `http://${IP}:8000/users/updateprofile`,
           userData,
           {
             headers: {
+              Authorization: `${token}`,
               'Content-Type': 'multipart/form-data',
             },
           },
         );
+
         console.log(res.data);
 
         if (res.data.status === 'ok') {
-          Alert.alert('Sign Up Successful');
-          // Navigate to login screen only if there are no backend errors
-          navigation.navigate('Login');
+          Alert.alert('Profile Updated');
+          navigation.navigate('Profile');
         }
       } catch (err) {
         console.log(err.response.data);
@@ -169,16 +165,7 @@ console.log(userData.country);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity style={styles.avatarContainer}>
-        {avatarSource ? (
-          <Avatar.Image  source={{
-            uri: `http://${IP}:8000/Images/uploads/${avatarSource}`,
-          }} size={200} />
-        ) : (
-          <Avatar.Image
-            source={{uri: 'https://i.imgur.com/BoN9kdC.png'}}
-            size={100}
-          />
-        )}
+        <Avatar.Image source={avatarSource} size={200} />
         <Text style={styles.uploadText} onPress={showModal}>
           Upload Image
         </Text>
@@ -232,7 +219,7 @@ console.log(userData.country);
         style={[styles.input, {borderColor: errors.firstName ? 'red' : 'gray'}]}
         error={errors.firstName !== ''}
       />
-     
+
       <View style={styles.inputContainer}>
         <CountryPicker
           countryCode={phoneCountryCode}
@@ -274,7 +261,6 @@ console.log(userData.country);
           />
         </View>
       </View>
-     
       <RNPickerSelect
         placeholder={{label: 'Select a country', value: null}}
         items={Country.getAllCountries().map(country => ({
@@ -313,20 +299,19 @@ console.log(userData.country);
           onValueChange={value => setSelectedCity(value)}
         />
       )}
-        
 
       <Button
         mode="contained"
-        onPress={handleSignup}
+        onPress={handleProfileUpdate}
         contentStyle={{height: 50, width: '100%'}}
         style={{
           backgroundColor: COLORS.blue,
           borderRadius: 50,
           marginTop: 12,
-          alignSelf:'center'
+          alignSelf: 'center',
         }}
         labelStyle={{color: 'white'}}>
-        update Profile
+        Update Profile
       </Button>
     </ScrollView>
   );

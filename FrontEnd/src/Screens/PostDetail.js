@@ -131,7 +131,7 @@ export default function PostCreation({navigation, route}) {
 
       if (response.data.status === 'ok') {
         Alert.alert('Post Uploaded');
-        navigation.navigate('Tabs');
+        navigation.navigate('Home', {refreshPosts: true});
       }
     } catch (error) {
       console.error(error);
