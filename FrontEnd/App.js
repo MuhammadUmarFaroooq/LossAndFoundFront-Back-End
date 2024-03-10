@@ -15,7 +15,9 @@ export default function App() {
 
   const fetchApi = async () => {
     try {
-      const response = await axios.get(`http://${IP}:8000/users`);
+      const response = await axios.get(
+        `https://c0d1-39-62-26-92.ngrok-free.app/users`,
+      );
       console.log(response.data);
     } catch (error) {
       console.log(error);

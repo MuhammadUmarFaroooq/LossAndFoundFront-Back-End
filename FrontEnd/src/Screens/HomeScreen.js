@@ -63,11 +63,14 @@ const HomeScreen = () => {
   const getPostData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`http://${IP}:8000/posts/getAllPosts`, {
-        headers: {
-          Authorization: `${token}`,
+      const response = await axios.get(
+        `https://c0d1-39-62-26-92.ngrok-free.app/posts/getAllPosts`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
         },
-      });
+      );
 
       setFoundPosts(response.data.posts);
     } catch (error) {
@@ -79,7 +82,7 @@ const HomeScreen = () => {
     return (
       <PostItem
         item={item}
-        onPress={() => navigation.navigate('DetailsPage', {id: item._id})}
+        onPress={() => navigation.navigate('DetailsPage', {itemId: item._id})}
         isFound={true}
       />
     );

@@ -21,7 +21,7 @@ const PostThumbnail = ({post, navigation}) => {
       onPress={() => navigation.navigate('DetailsPage', {itemId: post._id})}>
       <Image
         source={{
-          uri: `http://${IP}:8000/Images/uploads/${post.images[0]}`,
+          uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${post.images[0]}`,
         }}
         style={styles.postThumbnail}
       />
@@ -37,11 +37,14 @@ const Profile = ({navigation}) => {
   async function getData() {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`http://${IP}:8000/users/getUserData`, {
-        headers: {
-          Authorization: `${token}`,
+      const response = await axios.get(
+        `https://c0d1-39-62-26-92.ngrok-free.app/users/getUserData`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
         },
-      });
+      );
 
       const id = response.data.data.id;
 
@@ -63,7 +66,7 @@ const Profile = ({navigation}) => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.get(
-        `http://${IP}:8000/posts/getPostsByUserId/${userId}`,
+        `https://c0d1-39-62-26-92.ngrok-free.app/posts/getPostsByUserId/${userId}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -87,7 +90,7 @@ const Profile = ({navigation}) => {
             <View style={styles.imageContainer}>
               <Image
                 source={{
-                  uri: `http://${IP}:8000/Images/uploads/${userData.avatar}`,
+                  uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${userData.avatar}`,
                 }}
                 style={styles.avatar}
                 accessibilityLabel="Profile Image"

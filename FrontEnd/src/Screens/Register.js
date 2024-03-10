@@ -135,6 +135,18 @@ const SignupScreen = ({navigation}) => {
         selectedState: selectedState ? '' : 'Required',
         selectedCity: selectedCity ? '' : 'Required',
       });
+    } else if (!/^[A-Za-z\s]+$/.test(firstName)) {
+      setErrors({
+        ...errors,
+        firstName: 'Only alphabets are allowed',
+        phone: '', // Reset phone error if any
+      });
+    } else if (!/^\d+$/.test(phone)) {
+      setErrors({
+        ...errors,
+        phone: 'Only numbers are allowed',
+        firstName: '', // Reset firstName error if any
+      });
     } else if (password !== confirmPassword) {
       setErrors({
         ...errors,
@@ -162,7 +174,7 @@ const SignupScreen = ({navigation}) => {
 
       try {
         const res = await axios.post(
-          `http://${IP}:8000/users/signup`,
+          `https://c0d1-39-62-26-92.ngrok-free.app/users/signup`,
           userData,
           {
             headers: {
@@ -385,7 +397,6 @@ const SignupScreen = ({navigation}) => {
           onValueChange={value => setSelectedCity(value)}
         />
       )}
-        
 
       <Button
         mode="contained"

@@ -33,7 +33,7 @@ const ForgotPasswordScreen = ({navigation}) => {
       };
 
       const res = await axios.post(
-        `http://${IP}:8000/users/forgetpassword`,
+        `https://c0d1-39-62-26-92.ngrok-free.app/users/forgetpassword`,
         loginData,
       );
 

@@ -71,7 +71,7 @@ const Login = ({navigation}) => {
         };
 
         const res = await axios.post(
-          `http://${IP}:8000/users/login`,
+          `https://c0d1-39-62-26-92.ngrok-free.app/users/login`,
           loginData,
         );
 

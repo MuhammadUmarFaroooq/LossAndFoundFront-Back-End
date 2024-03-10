@@ -116,7 +116,7 @@ export default function PostCreation({navigation, route}) {
       // Send POST request to your server
       const token = await AsyncStorage.getItem('token');
       const response = await axios.post(
-        `http://${IP}:8000/posts/uploadPost`,
+        `https://c0d1-39-62-26-92.ngrok-free.app/posts/uploadPost`,
         formData,
         {
           headers: {

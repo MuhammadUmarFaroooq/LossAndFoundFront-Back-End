@@ -21,9 +21,11 @@ const IMG_HEIGHT = 280;
 
 const DetailsPage = ({route}) => {
   const {itemId} = route.params;
+  console.log(itemId);
   const navigation = useNavigation();
   const [postDetail, setPostDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isClaimed, setIsClaimed] = useState(false);
 
   const shareListing = async () => {
     try {
@@ -68,7 +70,7 @@ const DetailsPage = ({route}) => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.get(
-        `http://${IP}:8000/posts/getPostById/${itemId}`,
+        `https://c0d1-39-62-26-92.ngrok-free.app/posts/getPostById/${itemId}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -90,11 +92,14 @@ const DetailsPage = ({route}) => {
 
       const [postData, userResponse] = await Promise.all([
         response.data.post,
-        axios.get(`http://${IP}:8000/users/getUserById/${userId}`, {
-          headers: {
-            Authorization: `${token}`,
+        axios.get(
+          `https://c0d1-39-62-26-92.ngrok-free.app/users/getUserById/${userId}`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
           },
-        }),
+        ),
       ]);
 
       const postDetailWithUser = {
@@ -129,6 +134,11 @@ const DetailsPage = ({route}) => {
     );
   }
 
+  const handleClaimButton = () => {
+    // Toggle the isClaimed state
+    setIsClaimed(prevIsClaimed => !prevIsClaimed);
+  };
+
   const datelost = new Date(postDetail.dateOfItem);
   const dateloststring = datelost.toLocaleDateString();
   const timeloststring = datelost.toLocaleTimeString();
@@ -143,7 +153,7 @@ const DetailsPage = ({route}) => {
         {postDetail.images && postDetail.images.length > 0 && (
           <Image
             source={{
-              uri: `http://${IP}:8000/Images/uploads/${postDetail.images[0]}`,
+              uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${postDetail.images[0]}`,
             }}
             style={styles.image}
             resizeMode="cover"
@@ -171,7 +181,7 @@ const DetailsPage = ({route}) => {
           <View style={styles.hostView}>
             <Image
               source={{
-                uri: `http://${IP}:8000/Images/uploads/${postDetail.user.avatar}`,
+                uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${postDetail.user.avatar}`,
               }}
               style={styles.host}
             />
@@ -201,8 +211,15 @@ const DetailsPage = ({route}) => {
           <TouchableOpacity style={styles.footerText}>
             <Text style={styles.footerPrice}>{postDetail.category}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.reserveButton}>
-            <Text style={styles.reserveButtonText}>Claim</Text>
+          <TouchableOpacity
+            style={[
+              styles.reserveButton,
+              {backgroundColor: isClaimed ? 'blue' : '#4CAF50'},
+            ]}
+            onPress={handleClaimButton}>
+            <Text style={styles.reserveButtonText}>
+              {isClaimed ? 'Claimed' : 'Claim'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

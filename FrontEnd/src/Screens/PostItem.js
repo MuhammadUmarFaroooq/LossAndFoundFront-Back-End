@@ -22,7 +22,9 @@ const PostItem = ({item, onPress, isFound}) => {
     <TouchableOpacity onPress={() => onPress(item._id)}>
       <View style={styles.listing}>
         <Image
-          source={{uri: `http://${IP}:8000/Images/uploads/${item.images[0]}`}}
+          source={{
+            uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${item.images[0]}`,
+          }}
           style={styles.image}
         />
         <TouchableOpacity

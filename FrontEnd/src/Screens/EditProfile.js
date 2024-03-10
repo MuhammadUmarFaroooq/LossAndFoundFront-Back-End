@@ -24,11 +24,11 @@ import CountryPicker from 'react-native-country-picker-modal';
 import SearchableDropdown from 'react-native-searchable-dropdown';
 const MAX_IMAGE_SIZE = 1024 * 1024 * 5;
 
-const EditProfile = ({navigation,route}) => {
-const { userData } = route.params;
+const EditProfile = ({navigation, route}) => {
+  const {userData} = route.params;
 
   const [firstName, setFirstName] = useState(userData.fullName);
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState(''); // New state
   const [selectedCountry, setSelectedCountry] = useState(null);
@@ -160,7 +160,7 @@ const { userData } = route.params;
 
       try {
         const res = await axios.post(
-          `http://${IP}:8000/users/signup`,
+          `https://c0d1-39-62-26-92.ngrok-free.app/users/signup`,
           userData,
           {
             headers: {
@@ -186,9 +186,12 @@ const { userData } = route.params;
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity style={styles.avatarContainer}>
         {avatarSource ? (
-          <Avatar.Image  source={{
-            uri: `http://${IP}:8000/Images/uploads/${avatarSource}`,
-          }} size={200} />
+          <Avatar.Image
+            source={{
+              uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${avatarSource}`,
+            }}
+            size={200}
+          />
         ) : (
           <Avatar.Image
             source={{uri: 'https://i.imgur.com/BoN9kdC.png'}}
@@ -248,7 +251,7 @@ const { userData } = route.params;
         style={[styles.input, {borderColor: errors.firstName ? 'red' : 'gray'}]}
         error={errors.firstName !== ''}
       />
-     
+
       <View style={styles.inputContainer}>
         <CountryPicker
           countryCode={phoneCountryCode}
@@ -369,7 +372,6 @@ const { userData } = route.params;
           onValueChange={value => setSelectedCity(value)}
         />
       )}
-        
 
       <Button
         mode="contained"
@@ -379,7 +381,7 @@ const { userData } = route.params;
           backgroundColor: COLORS.blue,
           borderRadius: 50,
           marginTop: 12,
-          alignSelf:'center'
+          alignSelf: 'center',
         }}
         labelStyle={{color: 'white'}}>
         update Profile
