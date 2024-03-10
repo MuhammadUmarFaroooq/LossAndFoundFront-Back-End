@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import Ionicons from 'react-native-vector-icons/AntDesign';
 import {
   View,
   Text,
@@ -11,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {Tabs, TabScreen, TabsProvider} from 'react-native-paper-tabs';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 
 import {COLORS, IP} from '../constants/theme';
 
@@ -33,6 +34,19 @@ const Profile = ({navigation}) => {
   const [userData, setUserData] = useState(null);
   const [foundPosts, setFoundPosts] = useState([]);
   const [numColumns, setNumColumns] = useState(3);
+
+  const handleLogout = async () => {
+    try {
+      // Perform logout actions here, such as clearing AsyncStorage, etc.
+      await AsyncStorage.removeItem('token');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }], // Navigate back to the Login screen
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   async function getData() {
     try {
@@ -57,9 +71,21 @@ const Profile = ({navigation}) => {
     }
   }
 
+  useFocusEffect(
+    React.useCallback(() => {
+      // This function will be called every time the screen comes into focus
+      getData();
+    }, []),
+  );
+
   useEffect(() => {
-    getData();
-  }, []);
+    // This effect will run when userData is updated
+    // You can perform any additional actions here
+    // For example, re-fetch posts when userData changes
+    if (userData) {
+      getPostsByUserId(userData.id);
+    }
+  }, [userData]);
 
   // Function to get posts for a specific user by userId
   const getPostsByUserId = async userId => {
@@ -123,6 +149,8 @@ const Profile = ({navigation}) => {
             </View>
 
             {/* Edit profile button */}
+            <View style={styles.buttonsContainer}>
+            {/* Edit profile button */}
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => {
@@ -131,6 +159,19 @@ const Profile = ({navigation}) => {
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
 
+            {/* Change password button */}
+            <TouchableOpacity
+              style={styles.changePasswordButton}
+              onPress={() => {
+                // Implement change password functionality here
+                navigation.navigate('ChangePassword',{navigationto:'Profile'})
+              }}>
+              <Text style={styles.changePasswordButtonText}>Change Password</Text>
+            </TouchableOpacity>
+           
+           
+            
+          </View>
             {/* Tab navigation */}
             <TabsProvider>
               <Tabs style={{width: 350, marginTop: 2}}>
@@ -180,6 +221,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  logoutButton: {
+    marginRight:17
+  },
+
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
   profileContainer: {
     flex: 1,
     width: '100%',
@@ -218,6 +268,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 25,
     marginTop: 20,
+  },
+  changePasswordButton: {
+    backgroundColor: COLORS.blue,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    alignSelf: 'center',
+    borderRadius: 25,
+    marginTop: 20,
+  },
+  changePasswordButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   editButtonText: {
     color: 'white',

@@ -12,7 +12,9 @@ import {
 import {TextInput, Button} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, LINEARCOLOR} from '../constants/theme';
-const ChangePasswordScreen = ({navigation}) => {
+const ChangePasswordScreen = ({navigation,route}) => {
+  const {navigationto}=route.params
+  console.log(navigationto);
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -30,7 +32,7 @@ const ChangePasswordScreen = ({navigation}) => {
     }
     // Add your logic to handle password change here
     console.log('Changing password:', password);
-    navigation.navigate('Login');
+    navigation.navigate(navigationto);
   };
   const handleScreenPress = () => {
     Keyboard.dismiss(); // Dismiss the keyboard when the screen is pressed
