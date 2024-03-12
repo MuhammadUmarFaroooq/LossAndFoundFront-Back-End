@@ -6,7 +6,7 @@ import OnBoardingUI from './src/Screens/OnBoardingUI';
 import {NavigationContainer} from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import SplashScreen from 'react-native-splash-screen';
-import {COLORS, IP, LINEARCOLOR} from './src/constants/theme';
+import {API, COLORS, IP, LINEARCOLOR} from './src/constants/theme';
 
 import axios from 'axios';
 
@@ -15,7 +15,7 @@ export default function App() {
 
   const fetchApi = async () => {
     try {
-      const response = await axios.get(`http://${IP}:8000/users`);
+      const response = await axios.get(`${API}/users`);
       console.log(response.data);
     } catch (error) {
       console.log(error);

@@ -165,6 +165,7 @@ const toggleFavorite = async (req, res) => {
 
   try {
     // 1. Find the post by ID
+
     const post = await Posts.findById(postId);
 
     if (!post) {

@@ -7,7 +7,7 @@ function FavScreen({navigation}) {
     return (
       <PostItem
         item={item}
-        onPress={() => navigation.navigate('DetailsPage', {id: item._id})}
+        onPress={() => navigation.navigate('DetailsPage', {itemId: item._id})}
         isFound={true}
       />
     );

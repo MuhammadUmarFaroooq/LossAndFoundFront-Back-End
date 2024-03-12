@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {TextInput, Button, Text} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, IP, LINEARCOLOR} from '../constants/theme';
+import {API, COLORS, IP, LINEARCOLOR} from '../constants/theme';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const Login = ({navigation}) => {
@@ -70,10 +70,7 @@ const Login = ({navigation}) => {
           password: formData.password,
         };
 
-        const res = await axios.post(
-          `http://${IP}:8000/users/login`,
-          loginData,
-        );
+        const res = await axios.post(`${API}/users/login`, loginData);
 
         console.log('Login Data:', loginData);
 

@@ -16,7 +16,7 @@ import {
 } from 'react-native-paper';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import RNPickerSelect from 'react-native-picker-select';
-import {COLORS, IP} from '../constants/theme';
+import {API, COLORS, IP} from '../constants/theme';
 import {Country, State, City} from 'country-state-city';
 import axios from 'axios';
 import SuperscriptText from '../Components/SuperscriptText ';
@@ -135,6 +135,18 @@ const SignupScreen = ({navigation}) => {
         selectedState: selectedState ? '' : 'Required',
         selectedCity: selectedCity ? '' : 'Required',
       });
+    } else if (!/^[A-Za-z\s]+$/.test(firstName)) {
+      setErrors({
+        ...errors,
+        firstName: 'Only alphabets are allowed',
+        phone: '', // Reset phone error if any
+      });
+    } else if (!/^\d+$/.test(phone)) {
+      setErrors({
+        ...errors,
+        phone: 'Only numbers are allowed',
+        firstName: '', // Reset firstName error if any
+      });
     } else if (password !== confirmPassword) {
       setErrors({
         ...errors,
@@ -161,15 +173,11 @@ const SignupScreen = ({navigation}) => {
       }
 
       try {
-        const res = await axios.post(
-          `http://${IP}:8000/users/signup`,
-          userData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
+        const res = await axios.post(`${API}/users/signup`, userData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
           },
-        );
+        });
         console.log(res.data);
 
         if (res.data.status === 'ok') {
@@ -385,7 +393,6 @@ const SignupScreen = ({navigation}) => {
           onValueChange={value => setSelectedCity(value)}
         />
       )}
-        
 
       <Button
         mode="contained"

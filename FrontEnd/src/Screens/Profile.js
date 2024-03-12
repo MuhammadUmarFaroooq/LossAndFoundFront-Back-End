@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import Ionicons from 'react-native-vector-icons/AntDesign';
 import {
   View,
   Text,
@@ -13,7 +14,7 @@ import {Tabs, TabScreen, TabsProvider} from 'react-native-paper-tabs';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 
-import {COLORS, IP} from '../constants/theme';
+import {API, COLORS, IP} from '../constants/theme';
 
 const PostThumbnail = ({post, navigation}) => {
   return (
@@ -21,7 +22,7 @@ const PostThumbnail = ({post, navigation}) => {
       onPress={() => navigation.navigate('DetailsPage', {itemId: post._id})}>
       <Image
         source={{
-          uri: `http://${IP}:8000/Images/uploads/${post.images[0]}`,
+          uri: `${API}/Images/uploads/${post.images[0]}`,
         }}
         style={styles.postThumbnail}
       />
@@ -34,10 +35,23 @@ const Profile = ({navigation}) => {
   const [foundPosts, setFoundPosts] = useState([]);
   const [numColumns, setNumColumns] = useState(3);
 
+  const handleLogout = async () => {
+    try {
+      // Perform logout actions here, such as clearing AsyncStorage, etc.
+      await AsyncStorage.removeItem('token');
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Login'}], // Navigate back to the Login screen
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   async function getData() {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`http://${IP}:8000/users/getUserData`, {
+      const response = await axios.get(`${API}/users/getUserData`, {
         headers: {
           Authorization: `${token}`,
         },
@@ -75,7 +89,7 @@ const Profile = ({navigation}) => {
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axios.get(
-        `http://${IP}:8000/posts/getPostsByUserId/${userId}`,
+        `${API}/posts/getPostsByUserId/${userId}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -99,7 +113,7 @@ const Profile = ({navigation}) => {
             <View style={styles.imageContainer}>
               <Image
                 source={{
-                  uri: `http://${IP}:8000/Images/uploads/${userData.avatar}`,
+                  uri: `${API}/Images/uploads/${userData.avatar}`,
                 }}
                 style={styles.avatar}
                 accessibilityLabel="Profile Image"
@@ -132,14 +146,30 @@ const Profile = ({navigation}) => {
             </View>
 
             {/* Edit profile button */}
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => {
-                navigation.navigate('EditProfile', {userData: userData});
-              }}>
-              <Text style={styles.editButtonText}>Edit Profile</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonsContainer}>
+              {/* Edit profile button */}
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => {
+                  navigation.navigate('EditProfile', {userData: userData});
+                }}>
+                <Text style={styles.editButtonText}>Edit Profile</Text>
+              </TouchableOpacity>
 
+              {/* Change password button */}
+              <TouchableOpacity
+                style={styles.changePasswordButton}
+                onPress={() => {
+                  // Implement change password functionality here
+                  navigation.navigate('ChangePassword', {
+                    navigationto: 'Profile',
+                  });
+                }}>
+                <Text style={styles.changePasswordButtonText}>
+                  Change Password
+                </Text>
+              </TouchableOpacity>
+            </View>
             {/* Tab navigation */}
             <TabsProvider>
               <Tabs style={{width: 350, marginTop: 2}}>
@@ -189,6 +219,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  logoutButton: {
+    marginRight: 17,
+  },
+
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
   profileContainer: {
     flex: 1,
     width: '100%',
@@ -227,6 +266,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 25,
     marginTop: 20,
+  },
+  changePasswordButton: {
+    backgroundColor: COLORS.blue,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    alignSelf: 'center',
+    borderRadius: 25,
+    marginTop: 20,
+  },
+  changePasswordButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   editButtonText: {
     color: 'white',

@@ -14,16 +14,18 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {IP} from '../constants/theme';
+import {API, IP} from '../constants/theme';
 
 const {width} = Dimensions.get('window');
 const IMG_HEIGHT = 280;
 
 const DetailsPage = ({route}) => {
   const {itemId} = route.params;
+  console.log(itemId);
   const navigation = useNavigation();
   const [postDetail, setPostDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isClaimed, setIsClaimed] = useState(false);
 
   const shareListing = async () => {
     try {
@@ -67,14 +69,11 @@ const DetailsPage = ({route}) => {
   const getPostData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(
-        `http://${IP}:8000/posts/getPostById/${itemId}`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
+      const response = await axios.get(`${API}/posts/getPostById/${itemId}`, {
+        headers: {
+          Authorization: `${token}`,
         },
-      );
+      });
 
       const user = response.data.post.user;
 
@@ -90,7 +89,7 @@ const DetailsPage = ({route}) => {
 
       const [postData, userResponse] = await Promise.all([
         response.data.post,
-        axios.get(`http://${IP}:8000/users/getUserById/${userId}`, {
+        axios.get(`${API}/users/getUserById/${userId}`, {
           headers: {
             Authorization: `${token}`,
           },
@@ -129,6 +128,11 @@ const DetailsPage = ({route}) => {
     );
   }
 
+  const handleClaimButton = () => {
+    // Toggle the isClaimed state
+    setIsClaimed(prevIsClaimed => !prevIsClaimed);
+  };
+
   const datelost = new Date(postDetail.dateOfItem);
   const dateloststring = datelost.toLocaleDateString();
   const timeloststring = datelost.toLocaleTimeString();
@@ -143,7 +147,7 @@ const DetailsPage = ({route}) => {
         {postDetail.images && postDetail.images.length > 0 && (
           <Image
             source={{
-              uri: `http://${IP}:8000/Images/uploads/${postDetail.images[0]}`,
+              uri: `${API}/Images/uploads/${postDetail.images[0]}`,
             }}
             style={styles.image}
             resizeMode="cover"
@@ -171,7 +175,7 @@ const DetailsPage = ({route}) => {
           <View style={styles.hostView}>
             <Image
               source={{
-                uri: `http://${IP}:8000/Images/uploads/${postDetail.user.avatar}`,
+                uri: `${API}/Images/uploads/${postDetail.user.avatar}`,
               }}
               style={styles.host}
             />
@@ -201,8 +205,15 @@ const DetailsPage = ({route}) => {
           <TouchableOpacity style={styles.footerText}>
             <Text style={styles.footerPrice}>{postDetail.category}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.reserveButton}>
-            <Text style={styles.reserveButtonText}>Claim</Text>
+          <TouchableOpacity
+            style={[
+              styles.reserveButton,
+              {backgroundColor: isClaimed ? 'blue' : '#4CAF50'},
+            ]}
+            onPress={handleClaimButton}>
+            <Text style={styles.reserveButtonText}>
+              {isClaimed ? 'Claimed' : 'Claim'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

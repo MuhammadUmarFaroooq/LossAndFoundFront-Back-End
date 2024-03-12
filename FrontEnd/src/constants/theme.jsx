@@ -25,7 +25,8 @@ export const SIZES = {
   width,
   height,
 };
-export const IP = '172.16.100.61';
+export const IP = '192.168.100.7';
+export const API = 'https://c1a0-39-62-26-230.ngrok-free.app';
 
 export const LINEARCOLOR = [
   'hsla(270, 4%, 100%, 1)',

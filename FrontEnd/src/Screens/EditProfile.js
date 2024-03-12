@@ -16,7 +16,7 @@ import {
 } from 'react-native-paper';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import RNPickerSelect from 'react-native-picker-select';
-import {COLORS, IP} from '../constants/theme';
+import {API, COLORS, IP} from '../constants/theme';
 import {Country, State, City} from 'country-state-city';
 import axios from 'axios';
 import SuperscriptText from '../Components/SuperscriptText ';
@@ -36,7 +36,7 @@ const EditProfile = ({navigation, route}) => {
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
   const [avatarSource, setAvatarSource] = useState({
-    uri: `http://${IP}:8000/Images/uploads/${userData.avatar}`,
+    uri: `${API}/Images/uploads/${userData.avatar}`,
   });
   const [isModalVisible, setModalVisible] = useState(false);
   const [phoneCountryCode, setPhoneCountryCode] = useState();
@@ -110,8 +110,6 @@ const EditProfile = ({navigation, route}) => {
   const [errors, setErrors] = useState({
     firstName: '',
     phone: '',
-    password: '',
-    confirmPassword: '', // New error state
     selectedCountry: '',
     selectedState: '',
     selectedCity: '',
@@ -140,16 +138,12 @@ const EditProfile = ({navigation, route}) => {
 
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await axios.patch(
-          `http://${IP}:8000/users/updateprofile`,
-          userData,
-          {
-            headers: {
-              Authorization: `${token}`,
-              'Content-Type': 'multipart/form-data',
-            },
+        const res = await axios.patch(`${API}/users/updateprofile`, userData, {
+          headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'multipart/form-data',
           },
-        );
+        });
 
         console.log(res.data);
 
@@ -263,7 +257,6 @@ const EditProfile = ({navigation, route}) => {
           />
         </View>
       </View>
-
       <RNPickerSelect
         placeholder={{label: 'Select a country', value: null}}
         items={Country.getAllCountries().map(country => ({
