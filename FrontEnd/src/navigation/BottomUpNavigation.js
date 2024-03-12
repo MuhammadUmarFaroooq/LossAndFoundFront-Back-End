@@ -126,12 +126,13 @@ export default function BottomUpNavigation({navigation}) {
         }}
       />
       <Tab.Screen
-        name="heart"
+        name="Favourite Posts"
         component={FavScreen}
         options={{
           tabBarIcon: ({color, size}) => {
             return <Icon2 name="hearto" size={size} color={color} />;
           },
+          headerTitleAlign: 'center',
         }}
       />
       <Tab.Screen
@@ -161,12 +162,13 @@ export default function BottomUpNavigation({navigation}) {
         }}
       />
       <Tab.Screen
-        name="chat"
+        name="Chat"
         component={Chat}
         options={{
           tabBarIcon: ({color, size}) => {
             return <Icon2 name="message1" size={size} color={color} />;
           },
+          headerTitleAlign: 'center',
         }}
       />
       <Tab.Screen
