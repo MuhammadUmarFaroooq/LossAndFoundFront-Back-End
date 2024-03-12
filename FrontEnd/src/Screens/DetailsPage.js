@@ -14,7 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {IP} from '../constants/theme';
+import {API, IP} from '../constants/theme';
 
 const {width} = Dimensions.get('window');
 const IMG_HEIGHT = 280;
@@ -69,14 +69,11 @@ const DetailsPage = ({route}) => {
   const getPostData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(
-        `https://c0d1-39-62-26-92.ngrok-free.app/posts/getPostById/${itemId}`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
+      const response = await axios.get(`${API}/posts/getPostById/${itemId}`, {
+        headers: {
+          Authorization: `${token}`,
         },
-      );
+      });
 
       const user = response.data.post.user;
 
@@ -92,14 +89,11 @@ const DetailsPage = ({route}) => {
 
       const [postData, userResponse] = await Promise.all([
         response.data.post,
-        axios.get(
-          `https://c0d1-39-62-26-92.ngrok-free.app/users/getUserById/${userId}`,
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
+        axios.get(`${API}/users/getUserById/${userId}`, {
+          headers: {
+            Authorization: `${token}`,
           },
-        ),
+        }),
       ]);
 
       const postDetailWithUser = {
@@ -153,7 +147,7 @@ const DetailsPage = ({route}) => {
         {postDetail.images && postDetail.images.length > 0 && (
           <Image
             source={{
-              uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${postDetail.images[0]}`,
+              uri: `${API}/Images/uploads/${postDetail.images[0]}`,
             }}
             style={styles.image}
             resizeMode="cover"
@@ -181,7 +175,7 @@ const DetailsPage = ({route}) => {
           <View style={styles.hostView}>
             <Image
               source={{
-                uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${postDetail.user.avatar}`,
+                uri: `${API}/Images/uploads/${postDetail.user.avatar}`,
               }}
               style={styles.host}
             />

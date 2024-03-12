@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useState, useLayoutEffect} from 'react';
 import {View, FlatList, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {Categories} from '../constants/AppDetail';
+import {useNavigation} from '@react-navigation/native'; // Import useNavigation
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome5';
 import FontAwesomeIcon6 from 'react-native-vector-icons/FontAwesome6';
 import SimpleLineIcon from 'react-native-vector-icons/SimpleLineIcons';
@@ -27,10 +28,16 @@ const getIconComponent = iconType => {
       return FontAwesomeIcon;
   }
 };
-// ... (previous imports and code)
 
-export default function PostCreation({navigation}) {
+export default function PostCreation() {
   const [expandedCategories, setExpandedCategories] = useState([]);
+  const navigation = useNavigation(); // Add this line
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => null, // Set headerLeft to null to remove the back button
+    });
+  }, [navigation]);
 
   const toggleCategory = categoryName => {
     if (expandedCategories.includes(categoryName)) {

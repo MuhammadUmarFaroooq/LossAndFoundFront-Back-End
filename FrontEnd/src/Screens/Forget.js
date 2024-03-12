@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {TextInput, Button, Text} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, IP, LINEARCOLOR} from '../constants/theme';
+import {API, COLORS, IP, LINEARCOLOR} from '../constants/theme';
 import axios from 'axios';
 
 const ForgotPasswordScreen = ({navigation}) => {
@@ -32,10 +32,7 @@ const ForgotPasswordScreen = ({navigation}) => {
         email: email,
       };
 
-      const res = await axios.post(
-        `https://c0d1-39-62-26-92.ngrok-free.app/users/forgetpassword`,
-        loginData,
-      );
+      const res = await axios.post(`${API}/users/forgetpassword`, loginData);
 
       if (res.data.status === 'ok') {
         Alert.alert('OTP Sent');

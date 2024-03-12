@@ -13,7 +13,7 @@ import PostItem from './PostItem';
 import {Searchbar} from 'react-native-paper';
 import useLikeStore from '../Zustand_store/LikeStore';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {COLORS, IP} from '../constants/theme';
+import {API, COLORS, IP} from '../constants/theme';
 import {Link} from 'react-router-native';
 import listingsData from '../assets/data/airbnb-listings.json';
 import {useNavigation} from '@react-navigation/native';
@@ -52,14 +52,11 @@ const HomeScreen = ({route}) => {
   const getPostData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(
-        `https://c0d1-39-62-26-92.ngrok-free.app/posts/getAllPosts`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
+      const response = await axios.get(`${API}/posts/getAllPosts`, {
+        headers: {
+          Authorization: `${token}`,
         },
-      );
+      });
 
       setFoundPosts(response.data.posts);
     } catch (error) {
@@ -70,7 +67,7 @@ const HomeScreen = ({route}) => {
   const fetchLatestPosts = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`http://${IP}:8000/posts/getAllPosts`, {
+      const response = await axios.get(`${API}/posts/getAllPosts`, {
         headers: {
           Authorization: `${token}`,
         },

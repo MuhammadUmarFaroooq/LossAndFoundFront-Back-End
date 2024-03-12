@@ -18,7 +18,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {launchImageLibrary} from 'react-native-image-picker';
 import SuperscriptText from '../Components/SuperscriptText ';
 import IconComponent from 'react-native-vector-icons/Fontisto';
-import {COLORS, IP} from '../constants/theme';
+import {API, COLORS, IP} from '../constants/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Location from '../Components/Location';
@@ -116,16 +116,12 @@ export default function PostCreation({navigation, route}) {
     try {
       // Send POST request to your server
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.post(
-        `https://c0d1-39-62-26-92.ngrok-free.app/posts/uploadPost`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `${token}`,
-          },
+      const response = await axios.post(`${API}/posts/uploadPost`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `${token}`,
         },
-      );
+      });
 
       console.log(response.data);
 
@@ -342,8 +338,21 @@ export default function PostCreation({navigation, route}) {
         />
       )}
 
-      <Location />
-      
+      <TextInput
+        label={
+          <Text>
+            Location<SuperscriptText>*</SuperscriptText>
+          </Text>
+        }
+        value={itemColor}
+        onChangeText={text => setLocation(text)}
+        style={{
+          marginBottom: 8,
+          color: titleError ? 'red' : 'black',
+          borderColor: titleError ? 'red' : COLORS.grey,
+        }}
+      />
+
       <TextInput
         label={
           <Text>

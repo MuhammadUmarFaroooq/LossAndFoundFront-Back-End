@@ -16,7 +16,7 @@ import {
 } from 'react-native-paper';
 import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import RNPickerSelect from 'react-native-picker-select';
-import {COLORS, IP} from '../constants/theme';
+import {API, COLORS, IP} from '../constants/theme';
 import {Country, State, City} from 'country-state-city';
 import axios from 'axios';
 import SuperscriptText from '../Components/SuperscriptText ';
@@ -36,7 +36,7 @@ const EditProfile = ({navigation, route}) => {
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
   const [avatarSource, setAvatarSource] = useState({
-    uri: `https://c0d1-39-62-26-92.ngrok-free.app/Images/uploads/${userData.avatar}`,
+    uri: `${API}/Images/uploads/${userData.avatar}`,
   });
   const [isModalVisible, setModalVisible] = useState(false);
   const [phoneCountryCode, setPhoneCountryCode] = useState();
@@ -138,16 +138,12 @@ const EditProfile = ({navigation, route}) => {
 
       try {
         const token = await AsyncStorage.getItem('token');
-        const res = await axios.patch(
-          `https://c0d1-39-62-26-92.ngrok-free.app/users/updateprofile`,
-          userData,
-          {
-            headers: {
-              Authorization: `${token}`,
-              'Content-Type': 'multipart/form-data',
-            },
+        const res = await axios.patch(`${API}/users/updateprofile`, userData, {
+          headers: {
+            Authorization: `${token}`,
+            'Content-Type': 'multipart/form-data',
           },
-        );
+        });
 
         console.log(res.data);
 
