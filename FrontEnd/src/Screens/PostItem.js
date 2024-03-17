@@ -1,8 +1,8 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, Image} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Share} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import EvilIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import SahreIcon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios'; // Import axios
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useLikeStore from '../Zustand_store/LikeStore';
@@ -17,6 +17,16 @@ const PostItem = ({item, onPress, isFound}) => {
   const formattedDate = new Date(item.dateOfItem);
   const dateString = formattedDate.toLocaleDateString();
   const timeString = formattedDate.toLocaleTimeString();
+
+  const sharePost = async () => {
+    try {
+      await Share.share({
+        message: item.name,
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const handleToggleFavorite = async () => {
     try {
@@ -66,10 +76,10 @@ const PostItem = ({item, onPress, isFound}) => {
           </Text>
           <View style={{flexDirection: 'row', gap: 4}}>
             <TouchableOpacity>
-              <EvilIcons name={'comment'} size={26} color="#000" />
+              <EvilIcons name={'comment-text-outline'} size={26} color="#000" />
             </TouchableOpacity>
-            <TouchableOpacity>
-              <SahreIcon name={'share'} size={26} color="#000" />
+            <TouchableOpacity onPress={sharePost}>
+              <SahreIcon name={'share-social-outline'} size={26} color="#000" />
             </TouchableOpacity>
           </View>
         </View>

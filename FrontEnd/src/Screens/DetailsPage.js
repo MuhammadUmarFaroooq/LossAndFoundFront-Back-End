@@ -173,19 +173,34 @@ const DetailsPage = ({route}) => {
           <View style={styles.divider} />
 
           <View style={styles.hostView}>
-            <Image
-              source={{
-                uri: `${API}/Images/uploads/${postDetail.user.avatar}`,
-              }}
-              style={styles.host}
-            />
+            <View style={{flexDirection: 'row'}}>
+              <Image
+                source={{
+                  uri: `${API}/Images/uploads/${postDetail.user.avatar}`,
+                }}
+                style={styles.host}
+              />
+              <View>
+                <Text
+                  style={{
+                    fontWeight: '500',
+                    fontSize: 16,
+                    paddingLeft: 10,
+                    paddingTop: 5,
+                  }}>
+                  Posted by {postDetail.user.fullname}
+                </Text>
+                <Text style={{paddingLeft: 10}}>
+                  {dateString} {timeString}
+                </Text>
+              </View>
+            </View>
             <View>
-              <Text style={{fontWeight: '500', fontSize: 16}}>
-                Posted by {postDetail.user.fullname}
-              </Text>
-              <Text>
-                {dateString} {timeString}
-              </Text>
+              <Ionicons
+                name="chatbubble-ellipses-outline"
+                size={30}
+                color={'#000'}
+              />
             </View>
           </View>
 
@@ -270,6 +285,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    justifyContent: 'space-between',
   },
   footer: {
     paddingHorizontal: 20,
