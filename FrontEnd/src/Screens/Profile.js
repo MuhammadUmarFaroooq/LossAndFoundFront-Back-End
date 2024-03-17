@@ -79,7 +79,7 @@ const Profile = ({navigation}) => {
   );
 
   useEffect(() => {
-navigation.setOptions({
+    navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
           style={styles.logoutButton}
