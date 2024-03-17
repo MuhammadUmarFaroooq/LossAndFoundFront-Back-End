@@ -16,7 +16,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {API, COLORS, IP} from '../constants/theme';
 import {Link} from 'react-router-native';
 import listingsData from '../assets/data/airbnb-listings.json';
-import {useNavigation} from '@react-navigation/native';
+
 import {
   Tabs,
   TabScreen,
@@ -29,6 +29,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 const categories = [
   {name: 'All', message: 'All Posts'},
   {name: 'Lost', message: 'Lost Posts'},
@@ -40,12 +41,20 @@ const HomeScreen = ({route}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [posts, setPosts] = useState([]);
   const [foundPosts, setFoundPosts] = useState([]);
+  const [LostPosts, setLostPosts] = useState([]);
   const items = useMemo(() => listingsData, []);
   const {likedImages, addLikedImage, removeLikedImage} = useLikeStore(); // Use the Zustand store
 
-  useEffect(() => {
+ 
+  
+
+useFocusEffect(
+  React.useCallback(() => {
+    // This function will be called every time the screen comes into focus
     getPostData();
-  }, [route.params?.refreshPosts]);
+
+  }, [])
+  );
 
   const handleSearch = query => setSearchQuery(query);
 
@@ -58,26 +67,15 @@ const HomeScreen = ({route}) => {
         },
       });
 
-      setFoundPosts(response.data.posts);
+      setPosts(response.data.posts);
+      setFoundPosts(response.data.posts.filter((item) => item.type === 'Found'))
+      setLostPosts(response.data.posts.filter((item) => item.type === 'Lost' || item.type === 'lost'))
+      console.log(response.data.posts)
     } catch (error) {
       console.error('Error fetching post data:', error);
     }
-  };
+  }
 
-  const fetchLatestPosts = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${API}/posts/getAllPosts`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-
-      setFoundPosts(response.data.posts);
-    } catch (error) {
-      console.error('Error fetching post data:', error);
-    }
-  };
 
   const renderFoundPostRow = ({item}) => {
     return (
@@ -129,7 +127,7 @@ const HomeScreen = ({route}) => {
             <View style={styles.tabContent}>
               <FlatList
                 renderItem={renderFoundPostRow}
-                data={foundPosts}
+                data={posts}
                 keyExtractor={item => item._id.toString()}
               />
             </View>
@@ -137,11 +135,11 @@ const HomeScreen = ({route}) => {
           <TabScreen label="Lost">
             {/* Component for Lost items */}
             <View style={styles.tabContent}>
-              {/* <FlatList
-          renderItem={renderLostPostRow}
-          data={posts}
-          keyExtractor={(item) => item.id.toString()}
-        /> */}
+              <FlatList
+          renderItem={renderFoundPostRow}
+          data={LostPosts}
+          keyExtractor={item => item._id.toString()}
+        />
             </View>
           </TabScreen>
           <TabScreen label="Found">

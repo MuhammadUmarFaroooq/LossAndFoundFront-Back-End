@@ -21,12 +21,6 @@ import Chat from '../Screens/Chat';
 import FavScreen from '../Screens/FavScreen';
 
 const Tab = createBottomTabNavigator();
-
-const AlbumsRoute = () => <Text>Albums</Text>;
-
-const RecentsRoute = () => <Text>Recents</Text>;
-
-const NotificationsRoute = () => <Text>Notifications</Text>;
 export default function BottomUpNavigation({navigation}) {
   React.useLayoutEffect(() => {
     navigation.setOptions({

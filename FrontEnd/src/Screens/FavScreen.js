@@ -1,6 +1,8 @@
 import useLikeStore from '../Zustand_store/LikeStore';
 import PostItem from '../Screens/PostItem';
 import {View, FlatList} from 'react-native';
+import { backgroundColors } from '../constants/AppDetail';
+import { COLORS } from '../constants/theme';
 
 function FavScreen({navigation}) {
   const renderFoundPostRow = ({item}) => {
@@ -18,7 +20,7 @@ function FavScreen({navigation}) {
   const {likedImages} = useLikeStore();
   console.log(likedImages);
   return (
-    <View>
+    <View style={{backgroundColor:COLORS.white}}>
       <FlatList
         renderItem={renderFoundPostRow}
         data={likedImages}

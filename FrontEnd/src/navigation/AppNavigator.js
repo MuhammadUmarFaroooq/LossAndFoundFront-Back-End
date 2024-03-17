@@ -70,7 +70,7 @@ const AppNavigator = props => {
           },
         }}
       />
-      <Stack.Screen name="Home" component={HomeScreen} />
+      {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
       <Stack.Screen name='EditProfile' component={EditProfile} options={{
     headerTitleAlign: 'center', // This will center the header title
   }} />

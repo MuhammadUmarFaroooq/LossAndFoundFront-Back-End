@@ -135,15 +135,19 @@ export default function PostCreation({navigation, route}) {
     }
   };
 
-  const onChangeDateTime = (event, selectedDate, time) => {
-    if (time) {
-      setShowTimePickerModal(false);
-    }
-    setShowDatePickerModal(false);
+
+  const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || dateTime;
+    setShowDatePickerModal(false);
     setDateTime(currentDate);
+    setShowTimePickerModal(true);
   };
 
+  const onChangeTime = (event, selectedTime) => {
+    const currentDate = selectedTime || dateTime;
+    setShowTimePickerModal(false);
+    setDateTime(currentDate);
+  };
   return (
     <ScrollView style={{padding: 10, backgroundColor: 'white'}}>
       <View>
@@ -288,43 +292,40 @@ export default function PostCreation({navigation, route}) {
         }}
       />
 
-      <View style={{marginBottom: 20}}>
-        <TouchableOpacity onPress={() => setShowDatePickerModal(true)}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <View style={{position: 'relative', width: '100%'}}>
-              <TextInput
-                label="Date and Time"
-                value={dateTime.toString()}
-                style={{paddingRight: 40}} // Adjust paddingRight to accommodate icon
-              />
-              <IconComponent
-                name="date"
-                size={24}
-                color={COLORS.blue}
-                style={{
-                  position: 'absolute',
-                  right: 10,
-                  top: '50%',
-                  transform: [{translateY: -12}],
-                }} // Adjust position as needed
-              />
-            </View>
+<View style={{ marginBottom: 20 }}>
+      <TouchableOpacity onPress={() => setShowDatePickerModal(true)}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ position: 'relative', width: '100%' }}>
+            <TextInput
+              label="Date and Time"
+              value={dateTime.toString()}
+              style={{ paddingRight: 40 }} // Adjust paddingRight to accommodate icon
+            />
+            <IconComponent
+              name="date"
+              size={24}
+              color={COLORS.blue}
+              style={{
+                position: 'absolute',
+                right: 10,
+                top: '50%',
+                transform: [{ translateY: -12 }],
+              }} // Adjust position as needed
+            />
           </View>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
+
       {showDatePickerModal && (
         <DateTimePicker
           testID="datePicker"
           value={dateTime}
           mode="date"
-          is24Hour={true}
           display="default"
-          onChange={(event, selectedDate) => {
-            setShowTimePickerModal(true);
-            onChangeDateTime(event, selectedDate, false);
-          }}
+          onChange={onChangeDate}
         />
       )}
+
       {showTimePickerModal && (
         <DateTimePicker
           testID="timePicker"
@@ -332,11 +333,10 @@ export default function PostCreation({navigation, route}) {
           mode="time"
           is24Hour={true}
           display="default"
-          onChange={(event, selectedDate) => {
-            onChangeDateTime(event, selectedDate, true);
-          }}
+          onChange={onChangeTime}
         />
       )}
+    </View>
 
       <TextInput
         label={
@@ -344,7 +344,7 @@ export default function PostCreation({navigation, route}) {
             Location<SuperscriptText>*</SuperscriptText>
           </Text>
         }
-        value={itemColor}
+        value={location}
         onChangeText={text => setLocation(text)}
         style={{
           marginBottom: 8,

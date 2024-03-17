@@ -36,36 +36,7 @@ export default function AfterToursScreen({navigation}) {
     <LinearGradient colors={LINEARCOLOR} style={{flex: 1}}>
       <ScrollView>
         <View style={{padding: 16}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 16,
-              gap: 5,
-              paddingLeft: 5,
-              paddingTop: 8,
-            }}>
-            <Image
-              style={{width: 25, height: 25, marginHorizontal: 4}}
-              source={require('../assets/appicons/icon.png')}
-            />
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: COLORS.blue,
-                alignSelf: 'center',
-              }}>
-              ItemSync
-            </Text>
-          </View>
-
-          <Divider
-            style={{marginBottom: 12}}
-            bold={true}
-            theme={{colors: {primary: 'tomato'}}}
-          />
+      
           <AppSlogan
             lost={'Lost ?'}
             find={"Let's find it"}

@@ -76,9 +76,17 @@ const Profile = ({navigation}) => {
   );
 
   useEffect(() => {
-    // This effect will run when userData is updated
-    // You can perform any additional actions here
-    // For example, re-fetch posts when userData changes
+navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={styles.logoutButton}
+        onPress={handleLogout}>
+          <Ionicons name="logout" size={30} color={'black'} />
+      </TouchableOpacity>
+
+      ),
+    });
+
     if (userData) {
       getPostsByUserId(userData.id);
     }
@@ -261,18 +269,18 @@ const styles = StyleSheet.create({
   },
   editButton: {
     backgroundColor: COLORS.blue,
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 40,
     alignSelf: 'center',
-    borderRadius: 25,
+    borderRadius: 10,
     marginTop: 20,
   },
   changePasswordButton: {
     backgroundColor: COLORS.blue,
-    paddingVertical: 10,
+    paddingVertical: 8,
     paddingHorizontal: 15,
     alignSelf: 'center',
-    borderRadius: 25,
+    borderRadius: 10,
     marginTop: 20,
   },
   changePasswordButtonText: {
