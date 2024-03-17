@@ -32,8 +32,11 @@ const PostThumbnail = ({post, navigation}) => {
 
 const Profile = ({navigation}) => {
   const [userData, setUserData] = useState(null);
-  const [foundPosts, setFoundPosts] = useState([]);
-  const [numColumns, setNumColumns] = useState(3);
+  const [Posts, setPosts] = useState([]);
+  const [Found, setFound] = useState([]);
+  const [lost, setlost] = useState([]);
+  const [Claimed, setclaimed] = useState([]);
+  const [numColumns, setNumColumns] = useState(2);
 
   const handleLogout = async () => {
     try {
@@ -105,7 +108,18 @@ navigation.setOptions({
         },
       );
 
-      setFoundPosts(response.data.posts);
+      setPosts(response.data.posts);
+
+      setlost(
+        response.data.posts.filter(
+          post => post.type === 'lost' || post.type === 'Lost',
+        ),
+      );
+      setFound(
+        response.data.posts.filter(
+          post => post.type === 'Found' || post.type === 'found',
+        ),
+      );
     } catch (error) {
       console.error('Error fetching user posts:', error);
     }
@@ -140,15 +154,15 @@ navigation.setOptions({
             {/* Lost, Found, and Claimed items view */}
             <View style={styles.statsContainer}>
               <View style={styles.statsItem}>
-                <Text style={styles.statsNumber}>{1}</Text>
+                <Text style={styles.statsNumber}>{lost.length}</Text>
                 <Text style={styles.statsLabel}>Lost</Text>
               </View>
               <View style={styles.statsItem}>
-                <Text style={styles.statsNumber}>{0}</Text>
+                <Text style={styles.statsNumber}>{Found.length}</Text>
                 <Text style={styles.statsLabel}>Found</Text>
               </View>
               <View style={styles.statsItem}>
-                <Text style={styles.statsNumber}>{1}</Text>
+                <Text style={styles.statsNumber}>{0}</Text>
                 <Text style={styles.statsLabel}>Claimed</Text>
               </View>
             </View>
@@ -169,7 +183,7 @@ navigation.setOptions({
                 style={styles.changePasswordButton}
                 onPress={() => {
                   // Implement change password functionality here
-                  navigation.navigate('ChangePassword', {
+                  navigation.navigate('ChangePasswordWithCurrent', {
                     navigationto: 'Profile',
                   });
                 }}>
@@ -180,12 +194,19 @@ navigation.setOptions({
             </View>
             {/* Tab navigation */}
             <TabsProvider>
-              <Tabs style={{width: 350, marginTop: 2}}>
+              <Tabs style={{width: '100%', marginTop: 2}}>
                 <TabScreen label="Lost">
                   {/* Component for Lost items */}
-                  <View style={styles.tabContent}>
-                    <Text>Lost items content goes here</Text>
-                  </View>
+
+                  <FlatList
+                    renderItem={({item}) => (
+                      <PostThumbnail post={item} navigation={navigation} />
+                    )}
+                    data={lost}
+                    keyExtractor={item => item._id.toString()}
+                    numColumns={2}
+                    contentContainerStyle={styles.postList}
+                  />
                 </TabScreen>
                 <TabScreen label="Found">
                   {/* Component for Found items */}
@@ -194,13 +215,12 @@ navigation.setOptions({
 
                     {/* FlatList for Found posts */}
                     <FlatList
-                      key={`posts-${foundPosts.length}-${numColumns}`}
                       renderItem={({item}) => (
                         <PostThumbnail post={item} navigation={navigation} />
                       )}
-                      data={foundPosts}
+                      data={Found}
                       keyExtractor={item => item._id.toString()}
-                      numColumns={3}
+                      numColumns={2}
                       contentContainerStyle={styles.postList}
                     />
                   </View>
@@ -295,9 +315,10 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
+    justifyContent: 'space-around',
+    width: '100%',
     marginTop: 20,
+    marginBottom: 10,
   },
   statsItem: {
     alignItems: 'center',

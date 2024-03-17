@@ -16,6 +16,7 @@ import PostDetail from '../Screens/PostDetail';
 import Listings from '../Screens/Listings';
 import DetailsPage from '../Screens/DetailsPage';
 import EditProfile from '../Screens/EditProfile';
+import ChangePasswordWithCurrent from '../Screens/ChangePasswordWithCurrent';
 
 const Stack = createStackNavigator();
 
@@ -76,6 +77,10 @@ const AppNavigator = props => {
   }} />
       <Stack.Screen name="Listings" component={Listings} />
       <Stack.Screen name="DetailsPage" component={DetailsPage} />
+      <Stack.Screen
+        name="ChangePasswordWithCurrent"
+        component={ChangePasswordWithCurrent}
+      />
     </Stack.Navigator>
   );
 };
