@@ -7,6 +7,7 @@ const {
   forgetpassword,
   updateProfile,
   getUserById,
+  changePassword,
 } = require("../controllers/user.controllers");
 const {
   validateUserSignUp,
@@ -74,5 +75,6 @@ usersRouter.patch(
   upload.single("avatar"),
   updateProfile
 );
+usersRouter.patch("/changepassword", postauthenticate, changePassword);
 
 module.exports = usersRouter;

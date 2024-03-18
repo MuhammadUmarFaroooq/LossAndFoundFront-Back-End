@@ -5,6 +5,7 @@ const VerificationToken = require("../modals/VerificationTokenSchema");
 const { createRandomBytes } = require("../helper/helper");
 const { generateOTP, mailTransport } = require("../helper/mail");
 const sharp = require("sharp");
+const bcrypt = require("bcrypt");
 
 const signup = async (req, res) => {
   try {
@@ -301,6 +302,50 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.user._id;
+
+    // Find the user by userId
+    const user = await Users.findById(userId);
+
+    // Check if the provided current password matches the stored hashed password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Current password is incorrect.",
+      });
+    }
+
+    // Check if new password and confirm password match
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        message: "New password and confirm password do not match.",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 8);
+
+    // Update the user's password in the database
+    await Users.findByIdAndUpdate(userId, { password: hashedPassword });
+
+    res.status(200).json({
+      status: "ok",
+      message: "Password changed successfully.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = { changePassword };
+
 module.exports = {
   signup,
   signin,
@@ -308,4 +353,5 @@ module.exports = {
   getUserById,
   forgetpassword,
   updateProfile,
+  changePassword,
 };

@@ -5,6 +5,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   TextInput,
@@ -13,8 +14,11 @@ import {
   Text,
   Provider as PaperProvider,
 } from 'react-native-paper';
-import {COLORS} from '../constants/theme';
+import {API, COLORS} from '../constants/theme';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+
 export default function ChangePasswordWithCurrent({navigation}) {
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -29,7 +33,8 @@ export default function ChangePasswordWithCurrent({navigation}) {
         </TouchableOpacity>
       ),
     });
-  }, []);
+  }, [navigation]);
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -43,34 +48,51 @@ export default function ChangePasswordWithCurrent({navigation}) {
     }
     if (!newPassword) {
       errors.newPassword = 'New password is required';
-    } else if (newPassword.length < 8) {
-      errors.newPassword = 'Password must be at least 8 characters long';
-    } else if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-        newPassword,
-      )
-    ) {
-      errors.newPassword =
-        'Password must include at least one lowercase letter, one uppercase letter, one number, and one special character';
     }
     if (!confirmPassword) {
       errors.confirmPassword = 'Confirm password is required';
-    } else if (confirmPassword !== newPassword) {
+    }
+    if (newPassword !== confirmPassword) {
       errors.confirmPassword = 'Passwords do not match';
+    }
+    if (newPassword.length < 8) {
+      errors.newPassword = 'Password must be at least 8 characters long';
     }
 
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     const isValid = validateFields();
 
     if (isValid) {
-      // Your logic to handle password change goes here
-      console.log('Current Password:', currentPassword);
-      console.log('New Password:', newPassword);
-      console.log('Confirm Password:', confirmPassword);
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const res = await axios.patch(
+          `${API}/users/changepassword`,
+          {
+            currentPassword,
+            newPassword,
+            confirmPassword,
+          },
+          {
+            headers: {
+              Authorization: `${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+
+        if (res.data.status === 'ok') {
+          Alert.alert('Password Changed Successfully', '', [
+            {text: 'OK', onPress: () => navigation.goBack()}, // Navigate back to previous screen
+          ]);
+        }
+      } catch (err) {
+        console.log(err);
+        Alert.alert('Error Changing Password', err);
+      }
     }
   };
 
@@ -118,7 +140,7 @@ export default function ChangePasswordWithCurrent({navigation}) {
           </Button>
           <Text style={styles.note}>
             Note: Make sure your new password is at least 8 characters long and
-            includes a mix of letters, numbers, and symbols.
+            the new password and confirm password fields match.
           </Text>
         </View>
       </TouchableWithoutFeedback>

@@ -1,8 +1,8 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, Image, Share} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import EvilIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import SahreIcon from 'react-native-vector-icons/Ionicons';
+import EvilIcons from 'react-native-vector-icons/Fontisto';
+import SahreIcon from 'react-native-vector-icons/FontAwesome5';
 import axios from 'axios'; // Import axios
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useLikeStore from '../Zustand_store/LikeStore';
@@ -74,12 +74,12 @@ const PostItem = ({item, onPress, isFound}) => {
           <Text style={{fontSize: 16, fontFamily: 'Poppins-Bold'}}>
             {item.name}
           </Text>
-          <View style={{flexDirection: 'row', gap: 4}}>
+          <View style={{flexDirection: 'row', gap: 10}}>
             <TouchableOpacity>
-              <EvilIcons name={'comment-text-outline'} size={26} color="#000" />
+              <EvilIcons name={'commenting'} size={22} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity onPress={sharePost}>
-              <SahreIcon name={'share-social-outline'} size={26} color="#000" />
+              <SahreIcon name={'share'} size={22} color="#000" />
             </TouchableOpacity>
           </View>
         </View>

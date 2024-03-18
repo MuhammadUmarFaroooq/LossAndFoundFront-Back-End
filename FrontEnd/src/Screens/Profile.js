@@ -81,12 +81,9 @@ const Profile = ({navigation}) => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          style={styles.logoutButton}
-        onPress={handleLogout}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="logout" size={30} color={'black'} />
-      </TouchableOpacity>
-
+        </TouchableOpacity>
       ),
     });
 
