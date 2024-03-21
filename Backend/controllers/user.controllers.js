@@ -3,7 +3,11 @@ const Users = require("../modals/users");
 const jwt = require("jsonwebtoken");
 const VerificationToken = require("../modals/VerificationTokenSchema");
 const { createRandomBytes } = require("../helper/helper");
-const { generateOTP, mailTransport } = require("../helper/mail");
+const {
+  generateOTP,
+  mailTransport,
+  generateHTMLWithOTP,
+} = require("../helper/mail");
 const sharp = require("sharp");
 const bcrypt = require("bcrypt");
 
@@ -50,7 +54,21 @@ const signup = async (req, res) => {
       avatar: avatarFileName, // Save the filename instead of buffer
     });
 
+    const OTP = generateOTP();
+    const VeriToken = new VerificationToken({
+      owner: userToSave._id,
+      token: OTP,
+    });
+    await VeriToken.save();
+
     await userToSave.save();
+
+    mailTransport().sendMail({
+      from: "emailverfication@gmal.com",
+      to: userToSave.email,
+      subject: "Verify OTP",
+      html: generateHTMLWithOTP(OTP),
+    });
 
     res.status(201).json({
       status: "ok",
@@ -217,23 +235,7 @@ const forgetpassword = async (req, res) => {
       from: "emailverfication@gmal.com",
       to: user.email,
       subject: "Verify OTP",
-      html: `<div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
-  <div style="margin:50px auto;width:70%;padding:20px 0">
-    <div style="border-bottom:1px solid #eee">
-      <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Item Sync</a>
-    </div>
-    <p style="font-size:1.1em">Hi,</p>
-    <p>Thank you for choosing Item Sync. Use the following OTP to complete your Reset procedures. OTP is valid for 1 hour</p>
-    <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
-    <p style="font-size:0.9em;">Regards,<br />Item Sync</p>
-    <hr style="border:none;border-top:1px solid #eee" />
-    <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
-      <p>Item Sync</p>
-      <p>Gujranwala,Punjab</p>
-      <p>Pakistan</p>
-    </div>
-  </div>
-</div>`,
+      html: generateHTMLWithOTP(OTP),
     });
 
     res.json({
@@ -344,7 +346,48 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = { changePassword };
+const verifyOTP = async (req, res) => {
+  try {
+    const { userId, otp } = req.body;
+
+    // Find the verification token associated with the user
+    const tokenRecord = await VerificationToken.findOne({ owner: userId });
+
+    if (!tokenRecord) {
+      return res.status(404).json({
+        success: false,
+        message: "Verification token not found. Please try again.",
+      });
+    }
+
+    // Compare the provided OTP with the stored hashed OTP
+    const isMatch = await tokenRecord.compareToken(otp);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP. Please enter the correct OTP.",
+      });
+    }
+
+    // Mark the user as verified
+    await Users.findByIdAndUpdate(userId, { verified: true });
+
+    // Delete the verification token
+    await VerificationToken.findOneAndDelete({ owner: userId });
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully. User has been verified.",
+    });
+  } catch (error) {
+    console.error("Error while verifying OTP:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
 module.exports = {
   signup,
@@ -354,4 +397,5 @@ module.exports = {
   forgetpassword,
   updateProfile,
   changePassword,
+  verifyOTP,
 };

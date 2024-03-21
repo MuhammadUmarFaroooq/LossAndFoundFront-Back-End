@@ -44,6 +44,11 @@ const userSchema = new mongoose.Schema(
         ref: "Post",
       },
     ],
+    verfied: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
   {
     collection: "Users",

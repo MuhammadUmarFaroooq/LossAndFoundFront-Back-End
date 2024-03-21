@@ -8,6 +8,7 @@ const {
   updateProfile,
   getUserById,
   changePassword,
+  verifyOTP,
 } = require("../controllers/user.controllers");
 const {
   validateUserSignUp,
@@ -76,5 +77,7 @@ usersRouter.patch(
   updateProfile
 );
 usersRouter.patch("/changepassword", postauthenticate, changePassword);
+
+usersRouter.post("/verify-otp", verifyOTP);
 
 module.exports = usersRouter;
