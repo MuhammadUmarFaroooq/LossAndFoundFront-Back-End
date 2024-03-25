@@ -1,4 +1,3 @@
-// OTPScreen.js
 import React, {useState} from 'react';
 import {
   View,
@@ -7,22 +6,40 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from 'react-native';
 import {TextInput, Button} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, LINEARCOLOR} from '../constants/theme';
-const OTPScreen = ({navigation}) => {
+import {API, COLORS, LINEARCOLOR} from '../constants/theme';
+import axios from 'axios';
+
+const OTPScreen = ({navigation, route}) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
     });
   }, [navigation]);
-  const [otp, setOtp] = useState('');
 
-  const handleVerifyOTP = () => {
-    // Add your logic to verify the OTP here
-    console.log('Verifying OTP:', otp);
-    navigation.navigate('ChangePassword',{navigationto:'Login'});
+  const [otp, setOtp] = useState('');
+  const {userId} = route.params;
+
+  const handleVerifyOTP = async () => {
+    try {
+      const res = await axios.post(`${API}/users/verify-otp`, {userId, otp});
+
+      if (res.data.success) {
+        // OTP verified successfully, navigate to the desired screen
+        navigation.navigate('Login');
+        Alert.alert('OTP Verified');
+      } else {
+        // OTP verification failed, show an error message
+        Alert.alert('Invalid OTP. Please enter the correct OTP.');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      // Handle error case
+      Alert.alert('Error verifying OTP. Please try again later.');
+    }
   };
 
   const handleScreenPress = () => {
@@ -82,9 +99,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 200,
     height: 250,
-  },
-  button: {
-    width: '100%',
   },
   heading: {
     fontSize: 24,
