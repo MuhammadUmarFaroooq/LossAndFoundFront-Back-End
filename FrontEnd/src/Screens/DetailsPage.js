@@ -29,8 +29,18 @@ const DetailsPage = ({route}) => {
 
   const shareListing = async () => {
     try {
+      const datelost = new Date(postDetail.dateOfItem);
+      const dateloststring = datelost.toLocaleDateString();
+      const timeloststring = datelost.toLocaleTimeString();
+
+      const PostedDate = new Date(postDetail.datePosted);
+      const dateString = PostedDate.toLocaleDateString();
+      const timeString = PostedDate.toLocaleTimeString();
+
+      const message = `ItemSync App \nName: ${postDetail.name}\nCategory: ${postDetail.category}\nColor: ${postDetail.color}\nBrand: ${postDetail.brand}\nType: ${postDetail.type}\nLocation: ${postDetail.location}\nDate and Time Lost: ${dateloststring} ${timeloststring}\nPosted by: ${postDetail.user.fullname}\nDate and Time Posted: ${dateString} ${timeString}\nDescription: ${postDetail.description}`;
+
       await Share.share({
-        message: postDetail.name,
+        message: message,
       });
     } catch (err) {
       console.log(err);

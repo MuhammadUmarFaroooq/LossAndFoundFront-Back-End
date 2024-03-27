@@ -10,8 +10,14 @@ import {
 } from 'react-native';
 import {Tabs, TabScreen, TabsProvider} from 'react-native-paper-tabs';
 import {COLORS} from '../constants/theme';
+import {useNavigation} from '@react-navigation/native';
 
 const Chat = () => {
+  const navigation = useNavigation();
+
+  const handleOpenChat = () => {
+    navigation.navigate('ChatScreen'); // Navigate to the ChatScreen component
+  };
   const allChats = [
     {
       id: 1,
@@ -298,7 +304,9 @@ const Chat = () => {
         </TabScreen>
       </Tabs>
       {/* Create Chat Button */}
-      <TouchableOpacity style={styles.createChatButton}>
+      <TouchableOpacity
+        style={styles.createChatButton}
+        onPress={handleOpenChat}>
         {/* You can replace the '+' with your desired icon */}
         <Text style={{fontSize: 24, color: COLORS.white}}>+</Text>
       </TouchableOpacity>

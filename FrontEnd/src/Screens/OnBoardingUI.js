@@ -7,14 +7,14 @@ import {COLORS, LINEARCOLOR, SIZES} from '../constants/theme';
 const slides = [
   {
     id: 1,
-    title: 'Beyond Lost & Found: A Helping Hand',
+    title: 'Lost & Found: A Helping Hand',
     description:
       '“Were building a network of helpful neighbors. Share lost item experiences, offer a hand to others in need, and rediscover the spirit of connection within your local area. Its not just about things – its about coming together as a community."',
     image: require('../assets/Onboarding1.png'),
   },
   {
     id: 2,
-    title: 'Community Strong, Reunions Frequent',
+    title: 'Community Connects All',
     description:
       '“We are building a community where helpful neighbors connect. Share your lost item experiences, offer a hand to others, and rediscover not just lost things, but the spirit of connection within your local area."',
     image: require('../assets/Onboarding2.png'),

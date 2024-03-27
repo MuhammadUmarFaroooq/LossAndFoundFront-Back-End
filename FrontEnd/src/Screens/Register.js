@@ -22,6 +22,7 @@ import axios from 'axios';
 import SuperscriptText from '../Components/SuperscriptText ';
 import CountryPicker from 'react-native-country-picker-modal';
 import SearchableDropdown from 'react-native-searchable-dropdown';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 const MAX_IMAGE_SIZE = 1024 * 1024 * 5;
 
 const SignupScreen = ({navigation}) => {
@@ -38,6 +39,13 @@ const SignupScreen = ({navigation}) => {
   const [phoneCountryCallingCode, setPhoneCountryCallingCode] = useState();
   const [showPhoneCountryPicker, setShowPhoneCountryPicker] = useState(false);
   const [phone, setPhoneNo] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const togglePasswordVisibility = () =>
+    setShowPassword(prevState => !prevState);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(prevState => !prevState);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);
@@ -315,46 +323,52 @@ const SignupScreen = ({navigation}) => {
           />
         </View>
       </View>
-      <TextInput
-        label={
-          <Text>
-            Password <SuperscriptText>*</SuperscriptText>
-          </Text>
-        }
-        secureTextEntry
-        value={password}
-        onChangeText={text => {
-          setPassword(text);
-          setErrors(prevErrors => ({
-            ...prevErrors,
-            password: text ? '' : 'Required',
-          }));
-        }}
-        style={[styles.input, {borderColor: errors.password ? 'red' : 'gray'}]}
-        error={errors.password !== ''}
-      />
-      {/* Confirm Password */}
-      <TextInput
-        label={
-          <Text>
-            Confirm Password <SuperscriptText>*</SuperscriptText>
-          </Text>
-        }
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={text => {
-          setConfirmPassword(text);
-          setErrors(prevErrors => ({
-            ...prevErrors,
-            confirmPassword: text ? '' : 'Required',
-          }));
-        }}
-        style={[
-          styles.input,
-          {borderColor: errors.confirmPassword ? 'red' : 'gray'},
-        ]}
-        error={errors.confirmPassword !== ''}
-      />
+      {/* Password Input */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderBottomWidth: 1,
+          marginBottom: 10,
+        }}>
+        <TextInput
+          placeholder="Password"
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
+          style={{flex: 1}}
+        />
+        <Ionicons
+          name={showPassword ? 'eye-off' : 'eye'}
+          size={22}
+          color={'#000'}
+          onPress={togglePasswordVisibility}
+          style={{marginLeft: 10}}
+        />
+      </View>
+
+      {/* Confirm Password Input */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          borderBottomWidth: 1,
+        }}>
+        <TextInput
+          placeholder="Confirm Password"
+          secureTextEntry={!showConfirmPassword}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          style={{flex: 1}}
+        />
+        <Ionicons
+          name={showConfirmPassword ? 'eye-off' : 'eye'}
+          size={22}
+          color={'#000'}
+          onPress={toggleConfirmPasswordVisibility}
+          style={{marginLeft: 10}}
+        />
+      </View>
 
       <RNPickerSelect
         placeholder={{label: 'Select a country', value: null}}
