@@ -33,10 +33,14 @@ const ForgotPasswordScreen = ({navigation}) => {
       };
 
       const res = await axios.post(`${API}/users/forgetpassword`, loginData);
+  
+
+      const userId = res.data.user._id;
+      console.log(userId);
 
       if (res.data.status === 'ok') {
         Alert.alert('OTP Sent');
-        navigation.navigate('OPTScreen');
+        navigation.navigate('OPTScreen', {userId});
       } else {
         // Handle login error
         Alert.alert('Login Failed', res.data.message);

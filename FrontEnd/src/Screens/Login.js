@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Image,
@@ -7,12 +7,14 @@ import {
   Keyboard,
   ToastAndroid,
 } from 'react-native';
-import {TextInput, Button, Text} from 'react-native-paper';
+import { TextInput, Button, Text } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
-import {API, COLORS, IP, LINEARCOLOR} from '../constants/theme';
+import { API, COLORS, IP, LINEARCOLOR } from '../constants/theme';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const Login = ({navigation}) => {
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+const Login = ({ navigation }) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -24,6 +26,8 @@ const Login = ({navigation}) => {
     password: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
   // State to manage validation errors
   const [errors, setErrors] = useState({
     email: '',
@@ -32,7 +36,7 @@ const Login = ({navigation}) => {
 
   const validateForm = () => {
     let isValid = true;
-    const newErrors = {email: '', password: ''};
+    const newErrors = { email: '', password: '' };
 
     // Email validation
     if (!formData.email) {
@@ -75,10 +79,10 @@ const Login = ({navigation}) => {
         console.log('Login Data:', loginData);
 
         if (res.data.status === 'ok') {
-          ToastAndroid.show('Login Successful',  ToastAndroid.LONG);
+          ToastAndroid.show('Login Successful', ToastAndroid.LONG);
           AsyncStorage.setItem('token', res.data.token);
           console.log(res.data);
-          setFormData({email: null, password: null});
+          setFormData({ email: null, password: null });
           navigation.navigate('Tabs');
           
         } else {
@@ -94,10 +98,14 @@ const Login = ({navigation}) => {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <LinearGradient
       colors={LINEARCOLOR}
-      style={{flex: 1, justifyContent: 'center', paddingHorizontal: 20}}>
+      style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 20 }}>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View style={styles.container}>
           <Image
@@ -111,35 +119,46 @@ const Login = ({navigation}) => {
             mode="outlined"
             style={styles.input}
             placeholder="Enter your email"
-            onChangeText={text => setFormData({...formData, email: text})}
+            onChangeText={text => setFormData({ ...formData, email: text })}
             theme={{
-              colors: {primary: COLORS.blue, underlineColor: 'transparent'},
+              colors: { primary: COLORS.blue, underlineColor: 'transparent' },
             }}
             error={Boolean(errors.email)}
           />
-          <TextInput
-            label="Password"
-            mode="outlined"
-            onChangeText={text => setFormData({...formData, password: text})}
-            style={styles.input}
-            secureTextEntry
-            placeholder="Enter the password"
-            theme={{
-              colors: {primary: COLORS.blue, underlineColor: 'transparent'},
-            }}
-            error={Boolean(errors.password)}
-          />
+          <View style={styles.passwordInput}>
+            <TextInput
+              label="Password"
+              mode="outlined"
+              onChangeText={text => setFormData({ ...formData, password: text })}
+              style={{ flex: 1 }}
+              secureTextEntry={!showPassword}
+              placeholder="Enter the password"
+              theme={{
+                colors: { primary: COLORS.blue, underlineColor: 'transparent' },
+              }}
+              error={Boolean(errors.password)}
+            />
+            <TouchableWithoutFeedback onPress={togglePasswordVisibility}>
+              <View style={styles.iconContainer}>
+                <Ionicons
+                  name={showPassword ? 'eye-off' : 'eye'}
+                  size={22}
+                  color={'#000'}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
 
           <Button
             mode="contained"
-            onPress={() => handleLogin()}
-            contentStyle={{height: 50, width: '95%'}}
+            onPress={handleLogin}
+            contentStyle={{ height: 50, width: '95%' }}
             style={{
               backgroundColor: COLORS.blue,
               borderRadius: 50,
               marginTop: 12,
             }}
-            labelStyle={{color: 'white'}}>
+            labelStyle={{ color: 'white' }}>
             Login
           </Button>
 
@@ -191,6 +210,18 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
     overflow: 'hidden',
+  },
+  passwordInput: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  iconContainer: {
+    position: 'absolute',
+    right: 10,
+    zIndex: 1,
   },
   forgotPassword: {
     color: 'blue',
