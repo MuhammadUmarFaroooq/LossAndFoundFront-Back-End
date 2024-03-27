@@ -13,6 +13,8 @@ const postUpload = async (req, res) => {
       location,
       description,
       dateOfItem,
+      questions, // New - array of questions
+      options, // New - array of corresponding options
     } = req.body;
 
     const user = req.user;
@@ -45,6 +47,8 @@ const postUpload = async (req, res) => {
       dateOfItem,
       location,
       description,
+      questions, // New - save questions
+      options, // New - save options
       images: req.files.map((file) => file.filename),
       expirationDate: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000), // 30 days expiration
     });
@@ -64,6 +68,7 @@ const postUpload = async (req, res) => {
     });
   }
 };
+
 
 const getAllPosts = async (req, res) => {
   try {

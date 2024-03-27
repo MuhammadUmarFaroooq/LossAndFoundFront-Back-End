@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
-  Alert,
+  ToastAndroid,
 } from 'react-native';
 import {TextInput, Button, Text} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
@@ -75,11 +75,12 @@ const Login = ({navigation}) => {
         console.log('Login Data:', loginData);
 
         if (res.data.status === 'ok') {
-          Alert.alert('Login Successful');
+          ToastAndroid.show('Login Successful',  ToastAndroid.LONG);
           AsyncStorage.setItem('token', res.data.token);
           console.log(res.data);
           setFormData({email: null, password: null});
           navigation.navigate('Tabs');
+          
         } else {
           // Handle login error
           Alert.alert('Login Failed', res.data.message);
