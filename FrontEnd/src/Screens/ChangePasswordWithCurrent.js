@@ -38,7 +38,26 @@ export default function ChangePasswordWithCurrent({navigation}) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const togglePasswordVisibility = (field) => {
+    switch (field) {
+      case 'current':
+        setShowCurrentPassword(!showCurrentPassword);
+        break;
+      case 'new':
+        setShowNewPassword(!showNewPassword);
+        break;
+      case 'confirm':
+        setShowConfirmPassword(!showConfirmPassword);
+        break;
+      default:
+        break;
+    }
+  };
 
   const validateFields = () => {
     let errors = {};
@@ -105,33 +124,69 @@ export default function ChangePasswordWithCurrent({navigation}) {
             Please enter your current password, new password, and confirm the
             new password below:
           </Text>
-          <TextInput
-            label="Current Password"
-            value={currentPassword}
-            onChangeText={setCurrentPassword}
-            secureTextEntry
-            style={[styles.input, {borderRadius: 10}]}
-            error={!!errors.currentPassword}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              label="Current Password"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry={!showCurrentPassword}
+              style={[styles.input, {borderRadius: 10}]}
+              error={!!errors.currentPassword}
+            />
+            <TouchableWithoutFeedback
+              onPress={() => togglePasswordVisibility('current')}>
+              <Ionicons
+                name={showCurrentPassword ? 'eye-off' : 'eye'}
+                size={24}
+                color={'black'}
+                style={styles.eyeIcon}
+              />
+            </TouchableWithoutFeedback>
+          </View>
           <Text style={styles.error}>{errors.currentPassword}</Text>
-          <TextInput
-            label="New Password"
-            value={newPassword}
-            onChangeText={setNewPassword}
-            secureTextEntry
-            style={[styles.input, {borderRadius: 10}]}
-            error={!!errors.newPassword}
-          />
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              label="New Password"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry={!showNewPassword}
+              style={[styles.input, {borderRadius: 10}]}
+              error={!!errors.newPassword}
+            />
+            <TouchableWithoutFeedback
+              onPress={() => togglePasswordVisibility('new')}>
+              <Ionicons
+                name={showNewPassword ? 'eye-off' : 'eye'}
+                size={24}
+                color={'black'}
+                style={styles.eyeIcon}
+              />
+            </TouchableWithoutFeedback>
+          </View>
           <Text style={styles.error}>{errors.newPassword}</Text>
-          <TextInput
-            label="Confirm Password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            style={[styles.input, {borderRadius: 10}]}
-            error={!!errors.confirmPassword}
-          />
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              label="Confirm Password"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirmPassword}
+              style={[styles.input, {borderRadius: 10}]}
+              error={!!errors.confirmPassword}
+            />
+            <TouchableWithoutFeedback
+              onPress={() => togglePasswordVisibility('confirm')}>
+              <Ionicons
+                name={showConfirmPassword ? 'eye-off' : 'eye'}
+                size={24}
+                color={'black'}
+                style={styles.eyeIcon}
+              />
+            </TouchableWithoutFeedback>
+          </View>
           <Text style={styles.error}>{errors.confirmPassword}</Text>
+
           <Button
             mode="contained"
             onPress={handlePasswordChange}
@@ -156,7 +211,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#fff',
-
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: '#777',
   },
@@ -169,14 +223,23 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
   },
+  inputContainer: {
+    position: 'relative',
+    marginBottom: 10,
+  },
   input: {
     marginBottom: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: 40,
     height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 12,
     overflow: 'hidden',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    top: 15,
+    right: 10,
   },
   error: {
     color: 'red',

@@ -242,6 +242,7 @@ const forgetpassword = async (req, res) => {
     res.json({
       status: "ok",
       message: "OTP sent",
+      user
     });
   } catch (error) {
     console.log("Error getting user data:", error);

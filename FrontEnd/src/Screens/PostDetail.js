@@ -177,8 +177,10 @@ const handlePost = async () => {
             <Picker
             selectedValue={questionOptions[i]}
             onValueChange={questionOptions => handleQuestionOptionChange(questionOptions, i)}
-            style={{ height: 50, width: 150 }}
+            styl
+            e={{ height: 50, width: 150 }}
           >
+            <Picker.Item label="Select Correct Answer" value="Select Correct Answer" />
             <Picker.Item label="Yes" value="Yes" />
             <Picker.Item label="No" value="No" />
           </Picker>
