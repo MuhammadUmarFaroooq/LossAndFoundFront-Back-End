@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  ToastAndroid,
 } from 'react-native';
 import {useTheme, TextInput, Button as PaperButton} from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -133,7 +134,8 @@ export default function PostCreation({navigation, route}) {
       console.log(response.data);
 
       if (response.data.status === 'ok') {
-        Alert.alert('Post Uploaded');
+        ToastAndroid.show('Post Uploaded', ToastAndroid.LONG);
+
         navigation.navigate('Home', {refreshPosts: true});
       }
     } catch (error) {
