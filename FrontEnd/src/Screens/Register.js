@@ -21,7 +21,9 @@ import {Country, State, City} from 'country-state-city';
 import axios from 'axios';
 import SuperscriptText from '../Components/SuperscriptText ';
 import CountryPicker from 'react-native-country-picker-modal';
-import SearchableDropdown from 'react-native-searchable-dropdown';
+import CountrySelectorModal from '../Components/CountrySelectorModal';
+import CountryStateSelector from '../Components/CountryStateSelector';
+import CountryCitySelector from '../Components/CountryCitySelector';
 const MAX_IMAGE_SIZE = 1024 * 1024 * 5;
 
 const SignupScreen = ({navigation}) => {
@@ -179,12 +181,11 @@ const SignupScreen = ({navigation}) => {
           },
         });
         console.log(res.data);
-        const userId = res.data.userToSave._id;
 
         if (res.data.status === 'ok') {
           Alert.alert('Sign Up Successful');
           // Navigate to login screen only if there are no backend errors
-          navigation.navigate('OPTScreen', {userId});
+          navigation.navigate('Login');
         }
       } catch (err) {
         console.log(err.response.data);
@@ -356,45 +357,17 @@ const SignupScreen = ({navigation}) => {
         error={errors.confirmPassword !== ''}
       />
 
-      <RNPickerSelect
-        placeholder={{label: 'Select a country', value: null}}
-        items={Country.getAllCountries().map(country => ({
-          label: country.name,
-          value: country,
-        }))}
-        value={selectedCountry}
-        onValueChange={value => setSelectedCountry(value)}
-      />
 
-      {selectedCountry && (
-        <RNPickerSelect
-          placeholder={{label: 'Select a states', value: null}}
-          items={State?.getStatesOfCountry(selectedCountry?.isoCode)?.map(
-            state => ({
-              label: state.name,
-              value: state,
-            }),
-          )}
-          value={selectedState}
-          onValueChange={value => setSelectedState(value)}
-        />
+        
+          <CountrySelectorModal state={setSelectedCountry} />
+        {console.log(selectedCountry)}
+       
+        {selectedCountry && (
+        <CountryStateSelector state={selectedCountry} updatesstate={setSelectedState}/>
       )}
-
-      {selectedState && (
-        <RNPickerSelect
-          placeholder={{label: 'Select a city', value: null}}
-          items={City.getCitiesOfState(
-            selectedState?.countryCode,
-            selectedState?.isoCode,
-          )?.map(city => ({
-            label: city.name,
-            value: city,
-          }))}
-          value={selectedCity}
-          onValueChange={value => setSelectedCity(value)}
-        />
+  {selectedState && (
+        <CountryCitySelector States={selectedState} updatedCity={setSelectedCity} />
       )}
-
       <Button
         mode="contained"
         onPress={handleSignup}

@@ -127,7 +127,7 @@ useFocusEffect(
             <View style={styles.tabContent}>
               <FlatList
                 renderItem={renderFoundPostRow}
-                data={posts}
+                data={posts.reverse()}
                 keyExtractor={item => item._id.toString()}
               />
             </View>
