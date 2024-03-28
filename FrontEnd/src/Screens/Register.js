@@ -40,6 +40,13 @@ const SignupScreen = ({navigation}) => {
   const [phoneCountryCallingCode, setPhoneCountryCallingCode] = useState();
   const [showPhoneCountryPicker, setShowPhoneCountryPicker] = useState(false);
   const [phone, setPhoneNo] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const togglePasswordVisibility = () =>
+    setShowPassword(prevState => !prevState);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(prevState => !prevState);
 
   const showModal = () => setModalVisible(true);
   const hideModal = () => setModalVisible(false);

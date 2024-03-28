@@ -7,23 +7,23 @@ import {COLORS, LINEARCOLOR, SIZES} from '../constants/theme';
 const slides = [
   {
     id: 1,
-    title: 'Discover Best Places',
+    title: 'Lost & Found: A Helping Hand',
     description:
-      '“Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat"',
+      '“Were building a network of helpful neighbors. Share lost item experiences, offer a hand to others in need, and rediscover the spirit of connection within your local area. Its not just about things – its about coming together as a community."',
     image: require('../assets/Onboarding1.png'),
   },
   {
     id: 2,
-    title: 'Choose A Tasty Dish',
+    title: 'Community Connects All',
     description:
-      '“Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat"',
+      '“We are building a community where helpful neighbors connect. Share your lost item experiences, offer a hand to others, and rediscover not just lost things, but the spirit of connection within your local area."',
     image: require('../assets/Onboarding2.png'),
   },
   {
     id: 3,
-    title: 'Pick Up The Delivery',
+    title: 'Find Faster. Search Smarter',
     description:
-      '“Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat"',
+      '“Our advanced search is your secret weapon. Refine your search by location, category and date.  Put the power of a smart search in your hands and get reconnected with what is missing!"',
     image: require('../assets/Onboarding3.png'),
   },
 ];
@@ -52,9 +52,7 @@ function OnBoardingUI({updateShowHomePage}) {
   };
 
   return (
-    <LinearGradient
-      colors={LINEARCOLOR}
-      style={{flex: 1}}>
+    <LinearGradient colors={LINEARCOLOR} style={{flex: 1}}>
       <AppIntroSlider
         data={slides}
         renderItem={({item}) => {
@@ -112,7 +110,7 @@ function OnBoardingUI({updateShowHomePage}) {
                   textAlign: 'center',
                   paddingTop: 5,
                   color: COLORS.grey,
-                  fontWeight:'bold'
+                  fontWeight: 'bold',
                 }}>
                 {item.description}
               </Text>

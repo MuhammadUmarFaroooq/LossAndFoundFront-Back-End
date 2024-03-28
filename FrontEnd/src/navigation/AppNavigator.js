@@ -17,6 +17,7 @@ import Listings from '../Screens/Listings';
 import DetailsPage from '../Screens/DetailsPage';
 import EditProfile from '../Screens/EditProfile';
 import ChangePasswordWithCurrent from '../Screens/ChangePasswordWithCurrent';
+import ChatScreen from '../Screens/ChatScreen';
 
 const Stack = createStackNavigator();
 
@@ -72,15 +73,20 @@ const AppNavigator = props => {
         }}
       />
       {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-      <Stack.Screen name='EditProfile' component={EditProfile} options={{
-    headerTitleAlign: 'center', // This will center the header title
-  }} />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{
+          headerTitleAlign: 'center', // This will center the header title
+        }}
+      />
       <Stack.Screen name="Listings" component={Listings} />
       <Stack.Screen name="DetailsPage" component={DetailsPage} />
       <Stack.Screen
         name="ChangePasswordWithCurrent"
         component={ChangePasswordWithCurrent}
       />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
     </Stack.Navigator>
   );
 };

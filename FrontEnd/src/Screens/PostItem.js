@@ -20,8 +20,18 @@ const PostItem = ({item, onPress, isFound}) => {
 
   const sharePost = async () => {
     try {
+      const datelost = new Date(item.dateOfItem);
+      const dateloststring = datelost.toLocaleDateString();
+      const timeloststring = datelost.toLocaleTimeString();
+
+      const PostedDate = new Date(item.datePosted);
+      const dateString = PostedDate.toLocaleDateString();
+      const timeString = PostedDate.toLocaleTimeString();
+
+      const message = `ItemSync App \nName: ${item.name}\nCategory: ${item.category}\nColor: ${item.color}\nBrand: ${item.brand}\nType: ${item.type}\nLocation: ${item.location}\nDate and Time Lost: ${dateloststring} ${timeloststring}\nPosted by: ${item.user.fullname}\nDate and Time Posted: ${dateString} ${timeString}\nDescription: ${item.description}`;
+
       await Share.share({
-        message: item.name,
+        message: message,
       });
     } catch (err) {
       console.log(err);
