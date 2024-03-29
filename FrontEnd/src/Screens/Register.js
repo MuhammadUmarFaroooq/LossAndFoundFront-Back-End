@@ -188,12 +188,14 @@ const SignupScreen = ({navigation}) => {
           },
         });
         console.log(res.data);
+        const userId = res.data.userToSave._id;
 
         if (res.data.status === 'ok') {
-          Alert.alert('Sign Up Successful');
+          
           // Navigate to login screen only if there are no backend errors
-          navigation.navigate('Login');
+          navigation.navigate('OPTScreen', {userId});
         }
+     
       } catch (err) {
         console.log(err.response.data);
         Alert.alert(err.response.data.message);

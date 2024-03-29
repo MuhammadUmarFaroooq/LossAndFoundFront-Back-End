@@ -11,6 +11,7 @@ import {
 import {Tabs, TabScreen, TabsProvider} from 'react-native-paper-tabs';
 import {COLORS} from '../constants/theme';
 import {useNavigation} from '@react-navigation/native';
+import Location from '../Components/Location';
 
 const Chat = () => {
   const navigation = useNavigation();
@@ -264,6 +265,7 @@ const Chat = () => {
               // Add necessary onChangeText and other props for search functionality
             />
             {/* Chat List */}
+            <Location />
             <FlatList
               data={allChats}
               keyExtractor={item => item.id.toString()}
