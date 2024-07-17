@@ -1,18 +1,25 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Image,
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
+  ToastAndroid,
   Alert,
 } from 'react-native';
 import {TextInput, Button, Text} from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
-import {API, COLORS, IP, LINEARCOLOR} from '../constants/theme';
+import {API, COLORS, LINEARCOLOR} from '../constants/theme';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwt_decode from 'jwt-decode';
+import { setUserId } from '../store/actions';
+import { useDispatch } from 'react-redux';
+
 const Login = ({navigation}) => {
+  const dispatch = useDispatch();
+  
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -74,12 +81,22 @@ const Login = ({navigation}) => {
 
         console.log('Login Data:', loginData);
 
-        if (res.data.status === 'ok') {
-          Alert.alert('Login Successful');
-          AsyncStorage.setItem('token', res.data.token);
-          console.log(res.data);
-          setFormData({email: null, password: null});
+        if (res.status === 200 && res.data.status === 'ok') {
+          ToastAndroid.show('Login Successful', ToastAndroid.LONG);
+          await AsyncStorage.setItem('token', res.data.token);
+
+          // const decodedToken = jwt_decode(res.data.token);
+          // console.log('Decoded Token:', decodedToken);
+
+          // if (decodedToken ) {
+          //   dispatch(setUserId(decodedToken));
+          // } else {
+          //   Alert.alert('Login Error', 'Failed to decode token');
+          // }
+
+          setFormData({email: '', password: ''});
           navigation.navigate('Tabs');
+          
         } else {
           // Handle login error
           Alert.alert('Login Failed', res.data.message);
@@ -88,7 +105,11 @@ const Login = ({navigation}) => {
         // Handle any other errors
         console.error('Login Error:', error.response);
 
-        Alert.alert(error.response.data.message);
+        if (error.response && error.response.data && error.response.data.message) {
+          Alert.alert('Login Error', error.response.data.message);
+        } else {
+          Alert.alert('Login Error', 'An unexpected error occurred');
+        }
       }
     }
   };
@@ -116,6 +137,7 @@ const Login = ({navigation}) => {
             }}
             error={Boolean(errors.email)}
           />
+          {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
           <TextInput
             label="Password"
             mode="outlined"
@@ -128,10 +150,11 @@ const Login = ({navigation}) => {
             }}
             error={Boolean(errors.password)}
           />
+          {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
 
           <Button
             mode="contained"
-            onPress={() => handleLogin()}
+            onPress={handleLogin}
             contentStyle={{height: 50, width: '95%'}}
             style={{
               backgroundColor: COLORS.blue,
@@ -200,6 +223,12 @@ const styles = StyleSheet.create({
   },
   signupText: {
     color: 'gray',
+    fontFamily: 'Poppins-LightItalic',
+  },
+  errorText: {
+    color: 'red',
+    alignSelf: 'flex-start',
+    marginBottom: 16,
     fontFamily: 'Poppins-LightItalic',
   },
 });

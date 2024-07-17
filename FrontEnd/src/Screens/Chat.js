@@ -1,369 +1,238 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from 'react-native';
-import {Tabs, TabScreen, TabsProvider} from 'react-native-paper-tabs';
-import {COLORS} from '../constants/theme';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import io from 'socket.io-client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { API } from '../constants/theme';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import Toast from 'react-native-toast-message';
 
 const Chat = () => {
-  const allChats = [
-    {
-      id: 1,
-      name: 'John Doe',
-      message: 'Found a lost wallet at the park!',
-      read: true,
-    },
-    {
-      id: 2,
-      name: 'Talha Tanveer',
-      message: 'Lost my keys near the cafe, has anyone seen them?',
-      read: false,
-    },
-    {
-      id: 3,
-      name: 'Jane Smith',
-      message: 'Found a lost puppy near the market, looking for the owner!',
-      read: true,
-    },
-    {
-      id: 4,
-      name: 'Alice Johnson',
-      message:
-        'Lost a black umbrella at the bus stop, please let me know if found.',
-      read: true,
-    },
-    {
-      id: 5,
-      name: 'Bob Williams',
-      message:
-        'Found a set of headphones in the library, describe them to claim.',
-      read: false,
-    },
-    {
-      id: 6,
-      name: 'Eva Davis',
-      message: 'Lost my glasses at the museum, reward for return!',
-      read: false,
-    },
-    {
-      id: 7,
-      name: 'Michael Anderson',
-      message:
-        'Found a lost phone on the train, contact me with details to claim.',
-      read: true,
-    },
-    {
-      id: 8,
-      name: 'Sophia Clark',
-      message:
-        'Lost a blue backpack in the park, it has sentimental value, please help!',
-      read: false,
-    },
-    {
-      id: 9,
-      name: 'Oliver Moore',
-      message:
-        'Found a wallet near the shopping mall, contact me with ID details.',
-      read: true,
-    },
-    {
-      id: 10,
-      name: 'Ava Taylor',
-      message:
-        'Lost my favorite book at the cafe, would really appreciate its return.',
-      read: false,
-    },
-    {
-      id: 11,
-      name: 'Daniel White',
-      message: 'Found a lost bicycle on Main Street, let me know if its yours.',
-      read: true,
-    },
-    {
-      id: 12,
-      name: 'Emily Harris',
-      message:
-        'Lost a silver necklace at the beach, sentimental value attached, please help!',
-      read: false,
-    },
-    {
-      id: 13,
-      name: 'William Martinez',
-      message: 'Found a lost skateboard in the park, describe it to claim.',
-      read: true,
-    },
-    {
-      id: 14,
-      name: 'Lily Johnson',
-      message:
-        'Lost my wallet in the downtown area, contains important documents.',
-      read: false,
-    },
-    {
-      id: 15,
-      name: 'James Davis',
-      message:
-        'Found a lost camera at the movie theater, describe it for return.',
-      read: true,
-    },
-    {
-      id: 16,
-      name: 'Sophie Wilson',
-      message:
-        'Lost my favorite hat at the music festival, please contact if found.',
-      read: false,
-    },
-    {
-      id: 17,
-      name: 'Mason Brown',
-      message:
-        'Found a lost laptop in the coffee shop, contact with details to claim.',
-      read: true,
-    },
-    {
-      id: 18,
-      name: 'Grace Taylor',
-      message: 'Lost a red umbrella near the bus station, reward for return!',
-      read: false,
-    },
-    {
-      id: 19,
-      name: 'Elijah Harris',
-      message:
-        'Found a lost phone on the street, contact me with details to claim.',
-      read: true,
-    },
-    {
-      id: 20,
-      name: 'Aria Martinez',
-      message:
-        'Lost my wallet in the park, contains important cards, please help!',
-      read: false,
-    },
-  ];
+  const userId = useSelector((state) => state.userId);
+  const postId = useSelector((state) => state.postId);
 
-  const readChats = [
-    {
-      id: 3,
-      name: 'Jane Smith',
-      message: 'Read message from Jane Smith',
-      read: true,
-    },
-    {
-      id: 4,
-      name: 'Alice Johnson',
-      message: 'Read message from Alice Johnson',
-      read: true,
-    },
-    {
-      id: 6,
-      name: 'Eva Davis',
-      message: 'Lost my glasses at the museum, reward for return!',
-      read: false,
-    },
-    {
-      id: 7,
-      name: 'Michael Anderson',
-      message:
-        'Found a lost phone on the train, contact me with details to claim.',
-      read: true,
-    },
-    {
-      id: 8,
-      name: 'Sophia Clark',
-      message:
-        'Lost a blue backpack in the park, it has sentimental value, please help!',
-      read: false,
-    },
-    {
-      id: 9,
-      name: 'Oliver Moore',
-      message:
-        'Found a wallet near the shopping mall, contact me with ID details.',
-      read: true,
-    },
-  ];
+  const [messages, setMessages] = useState([]);
+  const [messageText, setMessageText] = useState('');
+  const [socket, setSocket] = useState(null);
 
-  const unreadChats = [
-    {
-      id: 5,
-      name: 'Bob Johnson',
-      message: 'Unread message from Bob Johnson',
-      read: false,
-    },
-    {
-      id: 10,
-      name: 'Eva Davis',
-      message: 'Unread message from Eva Davis',
-      read: false,
-    },
-    {
-      id: 6,
-      name: 'Eva Davis',
-      message: 'Lost my glasses at the museum, reward for return!',
-      read: false,
-    },
-    {
-      id: 7,
-      name: 'Michael Anderson',
-      message:
-        'Found a lost phone on the train, contact me with details to claim.',
-      read: true,
-    },
-    {
-      id: 8,
-      name: 'Sophia Clark',
-      message:
-        'Lost a blue backpack in the park, it has sentimental value, please help!',
-      read: false,
-    },
-    {
-      id: 9,
-      name: 'Oliver Moore',
-      message:
-        'Found a wallet near the shopping mall, contact me with ID details.',
-      read: true,
-    },
-  ];
+  const fetchChatHistory = async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios.get(
+        `${API}/chat/chat_history/${postId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setMessages(response.data.messages);
+      } else {
+        console.error('Error fetching chat history:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
+    }
+  };
 
-  const renderChatItem = ({item}) => (
-    <TouchableOpacity style={styles.chatItem}>
-      <Image
-        source={require('../assets/images.png')}
-        style={styles.userImage}
-      />
-      <View style={styles.chatInfo}>
-        <Text style={styles.userName}>{item.name}</Text>
-        <Text style={styles.lastMessage}>{item.message}</Text>
-      </View>
-    </TouchableOpacity>
+  useEffect(() => {
+    fetchChatHistory();
+
+    const setupSocket = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        const newSocket = io(`${API}`, { query: { token } });
+        setSocket(newSocket);
+      }
+    };
+
+    setupSocket();
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('connect', () => {
+        console.log('Connected to socket server');
+      });
+
+      socket.on('message_received', newMessage => {
+        setMessages(prevMessages => [...prevMessages, newMessage]);
+        Toast.show({
+          type: 'success',
+          text1: 'New Message',
+          text2: newMessage.message,
+          position: 'bottom'
+        });
+      });
+    }
+  }, [socket]);
+
+  const sendMessage = async () => {
+    const token = await AsyncStorage.getItem('token');
+    console.log('SendMessage Token:', token);
+    console.log('Message Text:', messageText);
+
+    if (socket && messageText.trim() !== '') {
+      try {
+        const response = await axios.post(
+          `${API}/chat/send_message`,
+          {
+            receiverId: postId,
+            message: messageText,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          const { senderId, receiverId, message } = response.data;
+          console.log('hi');
+          socket.emit('send_message', { senderId, receiverId, message });
+
+          const newMessage = { _id: Math.random().toString(), senderId, message };
+          setMessages(prevMessages => [...prevMessages, newMessage]);
+
+          setMessageText('');
+
+          Toast.show({
+            type: 'success',
+            text1: 'Message Sent',
+            text2: newMessage.message,
+            position: 'bottom'
+          });
+        } else {
+          console.error('Error sending message:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    }
+  };
+
+  const renderMessage = ({ item }) => (
+    <View style={[styles.messageContainer, item.senderId === userId ? styles.sentMessage : styles.receivedMessage]}>
+      <Text style={styles.messageText}>{item.message}</Text>
+      <TouchableOpacity onPress={() => deleteMessage(item._id)} style={styles.deleteButton}>
+        <Icon name="delete" size={20} color="#fff" />
+      </TouchableOpacity>
+    </View>
   );
 
+  const deleteMessage = async (messageId) => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await axios.delete(
+        `${API}/chat/delete_message/${messageId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setMessages(messages.filter(message => message._id !== messageId));
+      } else {
+        console.error('Error deleting message:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+    }
+  };
+
   return (
-    <TabsProvider>
-      <Tabs
-        style={{width: 420, marginTop: 2, paddingLeft: 20, paddingRight: 20}}>
-        <TabScreen label="All">
-          <View style={styles.tabContent}>
-            {/* Search Bar */}
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search User"
-              // Add necessary onChangeText and other props for search functionality
-            />
-            {/* Chat List */}
-            <FlatList
-              data={allChats}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderChatItem}
-            />
-          </View>
-        </TabScreen>
-        <TabScreen label="Read">
-          <View style={styles.tabContent}>
-            {/* Search Bar */}
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search User"
-              // Add necessary onChangeText and other props for search functionality
-            />
-            <FlatList
-              data={readChats}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderChatItem}
-            />
-            {/* Space at the bottom */}
-            <View style={{height: 50}} />
-          </View>
-        </TabScreen>
-        <TabScreen label="Unread">
-          <View style={styles.tabContent}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search User"
-              // Add necessary onChangeText and other props for search functionality
-            />
-            <FlatList
-              data={unreadChats}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderChatItem}
-            />
-          </View>
-        </TabScreen>
-      </Tabs>
-      {/* Create Chat Button */}
-      <TouchableOpacity style={styles.createChatButton}>
-        {/* You can replace the '+' with your desired icon */}
-        <Text style={{fontSize: 24, color: COLORS.white}}>+</Text>
-      </TouchableOpacity>
-    </TabsProvider>
+    <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
+      <FlatList
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.messagesContainer}
+        inverted
+      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={messageText}
+          onChangeText={text => setMessageText(text)}
+          placeholder="Type your message..."
+          onSubmitEditing={sendMessage}
+          returnKeyType="send"
+        />
+        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+          <Icon name="send" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
+      <Toast ref={(ref) => Toast.setRef(ref)} />
+    </KeyboardAvoidingView>
   );
 };
 
-export default Chat;
-
 const styles = StyleSheet.create({
-  tabContent: {
+  container: {
     flex: 1,
-    padding: 10,
-    backgroundColor: COLORS.white,
+    backgroundColor: '#f5f5f5',
   },
-  searchInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 10,
-    padding: 10,
-    backgroundColor: COLORS.white,
+  messagesContainer: {
+    paddingHorizontal: 10,
+    paddingBottom: 10,
   },
-  chatItem: {
+  messageContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: COLORS.white, // Set the background color to white for each chat item
-    borderRadius: 20, // Adjust the border radius as needed
+    borderRadius: 8,
     marginBottom: 10,
-    shadowColor: COLORS.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 1,
-    elevation: 2,
   },
-  userImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  sentMessage: {
+    backgroundColor: '#4CAF50',
+    alignSelf: 'flex-end',
+  },
+  receivedMessage: {
+    backgroundColor: '#EEEEEE',
+    alignSelf: 'flex-start',
+  },
+  messageText: {
+    color: '#333',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+  },
+  input: {
+    flex: 1,
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
     marginRight: 10,
   },
-  chatInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  lastMessage: {
-    color: 'gray',
-  },
-  createChatButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: COLORS.blue,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
+  sendButton: {
+    padding: 10,
+    borderRadius: 20,
+    backgroundColor: '#4CAF50',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    marginLeft: 10,
+    padding: 5,
+    borderRadius: 10,
+    backgroundColor: '#ff5722',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+
+export default Chat;

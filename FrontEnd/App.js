@@ -7,7 +7,8 @@ import {NavigationContainer} from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 import SplashScreen from 'react-native-splash-screen';
 import {API, COLORS, IP, LINEARCOLOR} from './src/constants/theme';
-
+import { Provider } from 'react-redux';
+import store from './src/store';
 import axios from 'axios';
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
   };
 
   return (
+    <Provider store={store}>
     <LinearGradient colors={LINEARCOLOR} style={{flex: 1}}>
       {showHomePage ? (
         <OnBoardingUI updateShowHomePage={updateShowHomePage} />
@@ -43,5 +45,7 @@ export default function App() {
         </NavigationContainer>
       )}
     </LinearGradient>
+    </Provider>
+    
   );
 }

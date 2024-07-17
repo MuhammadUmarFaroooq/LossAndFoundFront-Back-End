@@ -1,97 +1,59 @@
-import React, {useState, useRef, useMemo, useEffect} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  TextInput,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Text,
   FlatList,
-  Image,
 } from 'react-native';
-import PostItem from './PostItem';
-import {Searchbar} from 'react-native-paper';
-import useLikeStore from '../Zustand_store/LikeStore';
+import { useDispatch, useSelector } from 'react-redux';
+import { Searchbar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {API, COLORS, IP} from '../constants/theme';
-import {Link} from 'react-router-native';
-import listingsData from '../assets/data/airbnb-listings.json';
-
+import { fetchAllPosts } from '../store/api';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import PostItem from './PostItem';
 import {
   Tabs,
   TabScreen,
   TabsProvider,
-  useTabIndex,
-  useTabNavigation,
 } from 'react-native-paper-tabs';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import SahreIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
-const categories = [
-  {name: 'All', message: 'All Posts'},
-  {name: 'Lost', message: 'Lost Posts'},
-  {name: 'Found', message: 'Found Posts'},
-  {name: 'NearBy', message: 'Nearby Posts'},
-];
 
-const HomeScreen = ({route}) => {
+const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [posts, setPosts] = useState([]);
   const [foundPosts, setFoundPosts] = useState([]);
-  const [LostPosts, setLostPosts] = useState([]);
-  const items = useMemo(() => listingsData, []);
-  const {likedImages, addLikedImage, removeLikedImage} = useLikeStore(); // Use the Zustand store
+  const [lostPosts, setLostPosts] = useState([]);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const posts = useSelector(state => state.items);
 
- 
-  
-
-useFocusEffect(
-  React.useCallback(() => {
-    // This function will be called every time the screen comes into focus
-    getPostData();
-
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchAllPosts());
+    }, [dispatch])
   );
+
+  useEffect(() => {
+    if (posts && posts.length) {
+      setFoundPosts([...posts.filter(item => item.type === 'Found')]);
+      setLostPosts([...posts.filter(item => item.type === 'Lost' || item.type === 'lost')]);
+    }
+  }, [posts]);
 
   const handleSearch = query => setSearchQuery(query);
 
-  const getPostData = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${API}/posts/getAllPosts`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-
-      setPosts(response.data.posts);
-      setFoundPosts(response.data.posts.filter((item) => item.type === 'Found'))
-      setLostPosts(response.data.posts.filter((item) => item.type === 'Lost' || item.type === 'lost'))
-      console.log(response.data.posts)
-    } catch (error) {
-      console.error('Error fetching post data:', error);
-    }
-  }
-
-
-  const renderFoundPostRow = ({item}) => {
+  const renderPostRow = ({ item }) => {
     return (
       <PostItem
         item={item}
-        onPress={() => navigation.navigate('DetailsPage', {itemId: item._id})}
-        isFound={true}
+        onPress={() => navigation.navigate('DetailsPage', { itemId: item._id })}
+        isFound={item.type === 'Found'}
       />
     );
   };
 
   const handleFilterPress = () => {
-    console.log('Filter icon pressed');
+    navigation.navigate('Filters');
   };
-
-  const navigation = useNavigation();
 
   return (
     <View style={styles.main}>
@@ -102,11 +64,10 @@ useFocusEffect(
           value={searchQuery}
           style={styles.searchBar}
         />
-
         <TouchableOpacity
           onPress={handleFilterPress}
           style={styles.filterIconContainer}>
-          <Icon name={'filter-sharp'} size={30} color={COLORS.black} />
+          <Icon name={'filter-sharp'} size={30} color={'#000'} />
         </TouchableOpacity>
       </View>
 
@@ -121,40 +82,35 @@ useFocusEffect(
           mode="scrollable"
           showLeadingSpace={false}
           disableSwipe={false}
-          theme={{colors: {primary: 'blue'}}}>
+          theme={{ colors: { primary: 'blue' } }}>
           <TabScreen label="All">
-            {/* Component for Found items */}
             <View style={styles.tabContent}>
               <FlatList
-                renderItem={renderFoundPostRow}
-                data={posts}
-                keyExtractor={item => item._id.toString()}
+                renderItem={renderPostRow}
+                data={posts ? [...posts].reverse() : []}
+                keyExtractor={item => (item._id ? item._id.toString() : Math.random().toString())}
               />
             </View>
           </TabScreen>
           <TabScreen label="Lost">
-            {/* Component for Lost items */}
             <View style={styles.tabContent}>
               <FlatList
-          renderItem={renderFoundPostRow}
-          data={LostPosts}
-          keyExtractor={item => item._id.toString()}
-        />
-            </View>
-          </TabScreen>
-          <TabScreen label="Found">
-            {/* Component for Found items */}
-            <View style={styles.tabContent}>
-              <FlatList
-                renderItem={renderFoundPostRow}
-                data={foundPosts}
-                keyExtractor={item => item._id.toString()}
+                renderItem={renderPostRow}
+                data={lostPosts}
+                keyExtractor={item => (item._id ? item._id.toString() : Math.random().toString())}
               />
             </View>
           </TabScreen>
-
+          <TabScreen label="Found">
+            <View style={styles.tabContent}>
+              <FlatList
+                renderItem={renderPostRow}
+                data={foundPosts}
+                keyExtractor={item => (item._id ? item._id.toString() : Math.random().toString())}
+              />
+            </View>
+          </TabScreen>
           <TabScreen label="NearBy">
-            {/* Component for Nearby items */}
             <View style={styles.tabContent}>
               <Text>Nearby items content goes here</Text>
             </View>
@@ -167,7 +123,7 @@ useFocusEffect(
 
 const styles = StyleSheet.create({
   main: {
-    backgroundColor: COLORS.white,
+    backgroundColor: '#fff',
     flex: 1,
   },
   container: {
@@ -186,58 +142,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 14,
     padding: 12,
-    borderColor: COLORS.blue,
-    backgroundColor: COLORS.lightGrey,
+    borderColor: '#000',
+    backgroundColor: '#e0e0e0',
   },
-  categoryText: {
-    fontSize: 20,
-    fontFamily: 'Poppins-Light',
-    color: '#37474F',
-    textAlign: 'center',
-  },
-  categoryTextActive: {
-    fontSize: 20,
-    fontFamily: 'Poppins-Light',
-    color: COLORS.white,
-    textAlign: 'center',
-  },
-  inactiveCategoryBtn: {
-    borderRadius: 10,
-    borderWidth: 1,
-    backgroundColor: '#F0F1F2',
-    paddingVertical: 4,
-    paddingHorizontal: 28,
-  },
-  activeCategoryBtn: {
-    borderRadius: 10,
-    backgroundColor: COLORS.blue,
-    color: COLORS.white,
-    borderWidth: 2,
-    paddingVertical: 4,
-    paddingHorizontal: 28,
-  },
-  categoryMessage: {
-    fontSize: 18,
-    fontFamily: 'Poppins-Bold',
-    color: COLORS.blue,
-    textAlign: 'center',
-    paddingVertical: 10,
-  },
-  listing: {
-    padding: 16,
-    gap: 10,
-    marginVertical: 10,
-  },
-  image: {
-    width: '100%',
-    height: 300,
-    borderRadius: 10,
-  },
-  info: {
-    textAlign: 'center',
-    fontFamily: 'mon-sb',
-    fontSize: 16,
-    marginTop: 4,
+  tabContent: {
+    flex: 1,
+    padding: 10,
   },
 });
 

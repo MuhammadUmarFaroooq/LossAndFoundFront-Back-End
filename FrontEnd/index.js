@@ -15,4 +15,4 @@ export default function Main() {
     </PaperProvider>
   );
 }
-AppRegistry.registerComponent(appName, () => Main);
+AppRegistry.registerComponent(appName, () => App);

@@ -10,7 +10,8 @@ import {useNavigation} from '@react-navigation/native';
 import {StyleSheet} from 'react-native';
 import {API} from '../constants/theme';
 
-const PostItem = ({item, onPress, isFound}) => {
+const PostItem = ({item ={}, onPress, isFound}) => {
+  // console.log(item._id);
   const navigation = useNavigation();
   const isLiked = useLikeStore(state => state.likedImages.includes(item));
 
@@ -56,7 +57,7 @@ const PostItem = ({item, onPress, isFound}) => {
       <View style={styles.listing}>
         <Image
           source={{
-            uri: `${API}/Images/uploads/${item.images[0]}`,
+            uri: `${API}/Images/uploads/${item.images}`,
           }}
           style={styles.image}
         />

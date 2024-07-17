@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useEffect, useState} from 'react';
+import React, { useLayoutEffect, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,21 +11,23 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {API, IP} from '../constants/theme';
+import { useDispatch } from 'react-redux';
+import { setPostId } from '../store/actions';
+import { API } from '../constants/theme';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const IMG_HEIGHT = 280;
 
-const DetailsPage = ({route}) => {
-  const {itemId} = route.params;
-  console.log(itemId);
+const DetailsPage = ({ route }) => {
+  const { itemId } = route.params;
   const navigation = useNavigation();
   const [postDetail, setPostDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isClaimed, setIsClaimed] = useState(false);
+  const dispatch = useDispatch();
 
   const shareListing = async () => {
     try {
@@ -80,8 +82,6 @@ const DetailsPage = ({route}) => {
       if (!user) {
         console.error('User data not available for the post.');
         setIsLoading(false);
-        // Handle this case, e.g., set a default user object
-        // or skip processing user-related information
         return;
       }
 
@@ -129,8 +129,10 @@ const DetailsPage = ({route}) => {
   }
 
   const handleClaimButton = () => {
-    // Toggle the isClaimed state
-    setIsClaimed(prevIsClaimed => !prevIsClaimed);
+    setIsClaimed((prevIsClaimed) => !prevIsClaimed);
+    console.log('hanan ', itemId);
+    dispatch(setPostId(itemId));
+    navigation.navigate('Chat', { userId: postDetail.user._id });
   };
 
   const datelost = new Date(postDetail.dateOfItem);
@@ -143,7 +145,7 @@ const DetailsPage = ({route}) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={{flex: 1}}>
+      <ScrollView style={{ flex: 1 }}>
         {postDetail.images && postDetail.images.length > 0 && (
           <Image
             source={{
@@ -161,7 +163,7 @@ const DetailsPage = ({route}) => {
             Color: {postDetail.color} · Brand: {postDetail.brand} · Type:{' '}
             {postDetail.type}
           </Text>
-          <View style={{flexDirection: 'column', gap: 4}}>
+          <View style={{ flexDirection: 'column', gap: 4 }}>
             <Text style={styles.ratings}>
               Location: {postDetail.type} at {postDetail.location}
             </Text>
@@ -173,7 +175,7 @@ const DetailsPage = ({route}) => {
           <View style={styles.divider} />
 
           <View style={styles.hostView}>
-            <View style={{flexDirection: 'row'}}>
+            <View style={{ flexDirection: 'row' }}>
               <Image
                 source={{
                   uri: `${API}/Images/uploads/${postDetail.user.avatar}`,
@@ -190,7 +192,7 @@ const DetailsPage = ({route}) => {
                   }}>
                   Posted by {postDetail.user.fullname}
                 </Text>
-                <Text style={{paddingLeft: 10}}>
+                <Text style={{ paddingLeft: 10 }}>
                   {dateString} {timeString}
                 </Text>
               </View>
@@ -223,7 +225,7 @@ const DetailsPage = ({route}) => {
           <TouchableOpacity
             style={[
               styles.reserveButton,
-              {backgroundColor: isClaimed ? 'blue' : '#4CAF50'},
+              { backgroundColor: isClaimed ? 'blue' : '#4CAF50' },
             ]}
             onPress={handleClaimButton}>
             <Text style={styles.reserveButtonText}>
@@ -252,100 +254,82 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 26,
     fontWeight: 'bold',
-    fontFamily: 'mon-sb',
+    fontFamily: 'Arial',
+    color: '#000',
   },
   location: {
-    fontSize: 18,
-    marginTop: 10,
-    fontFamily: 'mon-sb',
+    fontSize: 20,
+    marginVertical: 4,
+    color: '#888',
   },
   rooms: {
     fontSize: 16,
-    color: '#777',
-    marginVertical: 4,
-    fontFamily: 'mon',
-  },
-
-  ratings: {
-    fontSize: 16,
-    fontFamily: 'mon-sb',
+    color: '#333',
   },
   divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: '#777',
-    marginVertical: 16,
-  },
-  host: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    backgroundColor: '#777',
+    marginVertical: 24,
+    height: 1,
+    backgroundColor: '#eee',
   },
   hostView: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
     justifyContent: 'space-between',
   },
-  footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderColor: '#777',
-  },
-  footerText: {
-    height: '100%',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  footerPrice: {
-    fontSize: 18,
-    fontFamily: 'mon-sb',
-  },
-  roundButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 50,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#000',
-  },
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  header: {
-    backgroundColor: '#fff',
-
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#777',
+  host: {
+    height: 70,
+    width: 70,
+    borderRadius: 35,
   },
   description: {
     fontSize: 16,
-    marginTop: 10,
-    fontFamily: 'mon',
+    lineHeight: 22,
+    color: '#333',
+  },
+  footer: {
+    padding: 24,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  footerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  footerPrice: {
+    fontSize: 20,
+    color: '#000',
   },
   reserveButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderRadius: 8,
   },
   reserveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
     fontSize: 16,
+    color: '#fff',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  header: {
+    backgroundColor: 'white',
+    height: '100%',
+  },
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  roundButton: {
+    height: 36,
+    width: 36,
+    borderRadius: 18,
+    backgroundColor: '#eee',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 4,
   },
 });
 

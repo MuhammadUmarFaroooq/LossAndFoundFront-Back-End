@@ -1,13 +1,13 @@
-const jwt = require("jsonwebtoken");
-const Users = require("../modals/users");
+const jwt = require('jsonwebtoken');
+const Users = require('../modals/users');
 
 const authenticate = async (req, res, next) => {
   try {
-    const { token } = req.body;
+    const token = req.headers.authorization.split(' ')[1];
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized Access! Token missing.",
+        message: 'Unauthorized Access! Token missing.',
       });
     }
 
@@ -15,36 +15,34 @@ const authenticate = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await Users.findById(decoded.userId);
       if (!user) {
-        return res
-          .status(401)
-          .json({ success: false, message: "Unauthorized Access" });
+        return res.status(401).json({ success: false, message: 'Unauthorized Access' });
       }
 
-      req.userId = decoded._id;
+      req.userId = decoded.userId;
       req.user = user; // Set the user in the request object
       next();
     } catch (error) {
       console.log(error.message);
 
-      if (error.message === "jwt expired") {
-        console.log("Token expired");
+      if (error.message === 'jwt expired') {
+        console.log('Token expired');
         return res.status(401).json({
           success: false,
-          message: "Unauthorized. Token expired.",
+          message: 'Unauthorized. Token expired.',
         });
       } else {
-        console.log("Invalid token");
+        console.log('Invalid token');
         return res.status(401).json({
           success: false,
-          message: "Unauthorized Access! Invalid token.",
+          message: 'Unauthorized Access! Invalid token.',
         });
       }
     }
   } catch (error) {
-    console.log("Internal Server Error");
+    console.log('Internal Server Error');
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error',
     });
   }
 };

@@ -19,6 +19,7 @@ import Profile from '../Screens/Profile';
 import {Categories} from '../constants/AppDetail';
 import Chat from '../Screens/Chat';
 import FavScreen from '../Screens/FavScreen';
+import ChatList from '../Screens/ChatList';
 
 const Tab = createBottomTabNavigator();
 export default function BottomUpNavigation({navigation}) {
@@ -100,6 +101,8 @@ export default function BottomUpNavigation({navigation}) {
               <TouchableOpacity
                 onPress={() => {
                   // Handle bell icon press
+                  console.log('press notification')
+                  navigation.navigate('NotificationMainScreen')
                 }}
                 style={{backgroundColor: COLORS.white, padding: 6}}>
                 {/* Pushes bell icon to the right */}
@@ -155,9 +158,10 @@ export default function BottomUpNavigation({navigation}) {
           },
         }}
       />
-      <Tab.Screen
-        name="Chat"
-        component={Chat}
+    
+       <Tab.Screen
+        name="ChatList"
+        component={ChatList}
         options={{
           tabBarIcon: ({color, size}) => {
             return <Icon2 name="message1" size={size} color={color} />;

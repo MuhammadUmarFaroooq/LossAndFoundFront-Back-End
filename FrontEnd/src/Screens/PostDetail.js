@@ -27,14 +27,14 @@ export default function PostCreation({ navigation, route }) {
   const [dateTime, setDateTime] = useState(new Date());
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
   const [showTimePickerModal, setShowTimePickerModal] = useState(false);
-  const [postType, setPostType] = useState('Lost'); // Default to 'Lost'
+  const [postType, setPostType] = useState(''); // Default to 'Lost'
   const [itemName, setItemName] = useState('');
   const [detailedDescription, setDetailedDescription] = useState('');
   const [location, setLocation] = useState('');
   const [selectedImages, setSelectedImages] = useState([]);
   const [titleError, setTitleError] = useState(false);
   const [itemNameError, setItemNameError] = useState(false);
-  const [numberOfQuestions, setNumberOfQuestions] = useState(10);
+  const [numberOfQuestions, setNumberOfQuestions] = useState(1);
   const [questionFields, setQuestionFields] = useState([]);
   const [questionOptions, setQuestionOptions] = useState(Array(numberOfQuestions).fill(''));
   
@@ -73,66 +73,74 @@ export default function PostCreation({ navigation, route }) {
     setPostType(type);
   };
 
-  const handlePost = async () => {
-    if (
-      !title ||
-      !itemName ||
-      !brand ||
-      !itemColor ||
-      !location ||
-      !detailedDescription
-    ) {
-      // Set error borders for empty fields
-      setTitleError(!title);
-      setItemNameError(!itemName);
+  // Update handlePost function
+const handlePost = async () => {
+  if (
+    !title ||
+    !itemName ||
+    !brand ||
+    !itemColor ||
+    !location ||
+    !detailedDescription
+  ) {
+    // Set error borders for empty fields
+    setTitleError(!title);
+    setItemNameError(!itemName);
 
-      console.log('Please fill in all the required fields.');
-      Alert.alert('Please fill in all the required fields.');
-      return;
-    }
+    console.log('Please fill in all the required fields.');
+    Alert.alert('Please fill in all the required fields.');
+    return;
+  }
 
-    // Create FormData object for multipart/form-data request
-    const formData = new FormData();
-    formData.append('type', postType);
-    formData.append('name', itemName);
-    formData.append('category', title);
-    formData.append('brand', brand);
-    formData.append('color', itemColor);
-    formData.append('location', location);
-    formData.append('description', detailedDescription);
-    formData.append('dateOfItem', dateTime.toString());
+  // Create FormData object for multipart/form-data request
+  const formData = new FormData();
+  formData.append('type', postType);
+  formData.append('name', itemName);
+  formData.append('category', title);
+  formData.append('brand', brand);
+  formData.append('color', itemColor);
+  formData.append('location', location);
+  formData.append('description', detailedDescription);
+  formData.append('dateOfItem', dateTime.toString());
 
-    // Append each selected image to the FormData object
-    selectedImages.forEach((image, index) => {
-      const imageType = image.type || 'image/jpeg';
-      formData.append(`images`, {
-        uri: image.uri,
-        type: imageType, // Adjust according to your image type
-        name: `image${index}.${imageType.split('/').pop()}`,
-      });
+  // Append each selected image to the FormData object
+  selectedImages.forEach((image, index) => {
+    const imageType = image.type || 'image/jpeg';
+    formData.append(`images`, {
+      uri: image.uri,
+      type: imageType, // Adjust according to your image type
+      name: `image${index}.${imageType.split('/').pop()}`,
+    });
+  });
+
+  // Append questions and options to FormData
+  questionFields.forEach((question, index) => {
+    formData.append(`questions[${index}]`, question);
+    formData.append(`options[${index}]`, questionOptions[index]);
+  });
+
+  try {
+    // Send POST request to your server
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post(`${API}/posts/uploadPost`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `${token}`,
+      },
     });
 
-    try {
-      // Send POST request to your server
-      const token = await AsyncStorage.getItem('token');
-      const response = await axios.post(`${API}/posts/uploadPost`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `${token}`,
-        },
-      });
+    console.log(response.data);
 
-      console.log(response.data);
-
-      if (response.data.status === 'ok') {
-        Alert.alert('Post Uploaded');
-        navigation.navigate('Home', { refreshPosts: true });
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error uploading post. Please try again.');
+    if (response.data.status === 'ok') {
+      Alert.alert('Post Uploaded');
+      navigation.navigate('Home', { refreshPosts: true });
     }
-  };
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Error uploading post. Please try again.');
+  }
+};
+
 
   const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || dateTime;
@@ -187,6 +195,7 @@ export default function PostCreation({ navigation, route }) {
     updatedQuestions[index] = text;
     setQuestionFields(updatedQuestions);
     console.log(questionFields);
+    console.log(questionOptions);
   };
   
 
@@ -235,7 +244,8 @@ export default function PostCreation({ navigation, route }) {
         </View>
       </View>
       
-      {/* Upload Images section */}
+      {postType && ( // Conditionally render the fields when type is selected
+        <>
       <View
         style={{
           marginBottom: 20,
@@ -386,6 +396,22 @@ export default function PostCreation({ navigation, route }) {
           />
         )}
       </View>
+
+      <TextInput
+          label={
+            <Text>
+              Location<SuperscriptText>*</SuperscriptText>
+            </Text>
+          }
+          value={location}
+          onChangeText={text => setLocation(text)}
+          style={{
+            marginBottom: 8,
+            color: titleError ? 'red' : 'black',
+            borderColor: titleError ? 'red' : COLORS.grey,
+          }}
+        />
+
       <TextInput
         label={
           <Text>
@@ -402,9 +428,10 @@ export default function PostCreation({ navigation, route }) {
           borderColor: titleError ? 'red' : COLORS.grey,
         }}
       />
-      {/* Additional fields for questions */}
+
+      {postType === 'Found' && ( // Only render questions when type is 'Found'
       <View style={{ marginBottom: 20 }}>
-        <Text>Select number of questions:</Text>
+        <Text>Select number of Secret Questions:</Text>
         <Picker
           selectedValue={numberOfQuestions}
           onValueChange={handleNumQuestionsChange}
@@ -414,12 +441,14 @@ export default function PostCreation({ navigation, route }) {
           ))}
         </Picker>
       </View>
-      {numberOfQuestions > 0 && (
+      )}
+      {numberOfQuestions > 0 && postType === 'Found' && (
         <View>
           <Text>Questions:</Text>
           {renderQuestionFields()}
         </View>
       )}
+      
   
       {/* Button to upload the post */}
       <PaperButton
@@ -435,6 +464,8 @@ export default function PostCreation({ navigation, route }) {
       >
         Upload Post
       </PaperButton>
+      </>
+      )}
     </ScrollView>
   );
 }

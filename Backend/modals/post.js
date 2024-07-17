@@ -52,6 +52,12 @@ const postSchema = new Schema(
         message: "Images must be an array of up to 5 filenames",
       },
     },
+    questions: {
+      type: [String], // Array of strings for questions
+    },
+    options: {
+      type: [String], // Array of strings for options
+    },
     expirationDate: {
       type: Date,
       required: true,

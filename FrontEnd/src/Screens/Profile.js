@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -39,12 +40,28 @@ const Profile = ({navigation}) => {
   const [numColumns, setNumColumns] = useState(2);
 
   const handleLogout = async () => {
+    Alert.alert(
+      'Confirm Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        { text: 'Yes', onPress: logoutUser },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const logoutUser = async () => {
     try {
       // Perform logout actions here, such as clearing AsyncStorage, etc.
       await AsyncStorage.removeItem('token');
       navigation.reset({
         index: 0,
-        routes: [{name: 'Login'}], // Navigate back to the Login screen
+        routes: [{ name: 'Login' }], // Navigate back to the Login screen
       });
     } catch (error) {
       console.error('Error logging out:', error);
